@@ -424,20 +424,21 @@ export default function DSAPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => setConsoleTab('output')}
-                          className={`text-xs px-3 py-1 rounded-lg font-medium transition-all ${
-                            consoleTab === 'output' ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-500 hover:text-slate-300'
+                          className={`text-xs px-3.5 py-1.5 rounded-lg font-semibold transition-all ${
+                            consoleTab === 'output' ? 'tab-active' : 'tab-inactive'
                           }`}
                         >
                           Output Console
                         </button>
                         <button
                           onClick={() => setConsoleTab('stdin')}
-                          className={`text-xs px-3 py-1 rounded-lg font-medium transition-all ${
-                            consoleTab === 'stdin' ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-500 hover:text-slate-300'
+                          className={`text-xs px-3.5 py-1.5 rounded-lg font-semibold transition-all ${
+                            consoleTab === 'stdin' ? 'tab-active' : 'tab-inactive'
                           }`}
                         >
                           Custom Testcases (stdin)
                         </button>
+
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -464,7 +465,7 @@ export default function DSAPage() {
                             ? 'text-red-400' : 'text-emerald-300'
                           }>{output}</span>
                         ) : (
-                          <span className="text-slate-600">
+                          <span className="text-slate-400 font-medium">
                             {'// Click ▶ Run to execute your code\n// Output will appear here'}
                           </span>
                         )}
@@ -477,11 +478,12 @@ export default function DSAPage() {
                           placeholder="Enter custom stdin inputs (e.g. [2, 7, 11, 15] 9)..."
                           className="input-dark flex-1 text-xs font-mono resize-none"
                         />
-                        <div className="text-[10px] text-slate-500 mt-2">
+                        <div className="text-xs text-indigo-300 font-medium mt-2">
                           💡 Inputs entered here will be passed to stdin when you click ▶ Run
                         </div>
                       </div>
                     )}
+
                   </div>
 
 

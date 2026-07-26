@@ -532,27 +532,37 @@ body {
 
 /* Tab styles */
 .tab-active {
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.4);
-  color: #818cf8;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%);
+  border: 1px solid rgba(165, 180, 252, 0.6);
+  color: #ffffff !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 .tab-inactive {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1 !important;
 }
 .tab-inactive:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
 }
 
-/* Input styles */
+/* Input & Placeholder High-Contrast Styles */
+input::placeholder,
+textarea::placeholder,
+select::placeholder,
+.input-dark::placeholder {
+  color: #94a3b8 !important; /* High-contrast light slate */
+  opacity: 1 !important;
+}
+
 .input-dark {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
-  color: #f0f0ff;
+  color: #f8fafc !important;
   padding: 10px 14px;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -561,14 +571,12 @@ body {
   display: block;
   box-sizing: border-box;
 }
-.input-dark::placeholder {
-  color: #475569;
-}
 .input-dark:focus {
-  border-color: rgba(99, 102, 241, 0.5);
-  background: rgba(99, 102, 241, 0.06);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.7);
+  background: rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
 }
+
 
 /* ── Search input wrapper (consistent icon + text spacing everywhere) ── */
 /* Usage:
