@@ -47,7 +47,14 @@ function CompanyCard({ company, expanded, onClick, onOpenPYQ }: { company: Compa
               <span className="font-heading font-bold text-white text-lg">{company.name}</span>
               <span className={`badge text-xs ${tierColors[company.tier]}`}>Tier {company.tier}</span>
               <span className={`badge text-xs ${hiringStatusBadge[company.hiringStatus]}`}>{company.hiringStatus}</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); onOpenPYQ(company.name); }}
+                className="text-xs px-2.5 py-1 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/30 transition-all font-medium flex items-center gap-1 ml-auto"
+              >
+                <BookOpen size={11} /> PYQ Sheet 📚
+              </button>
             </div>
+
             <div className="flex items-center gap-4 text-xs text-slate-500 mb-3 flex-wrap">
               <span>{company.domain}</span>
               <span className="flex items-center gap-1"><MapPin size={11} />{company.locations.join(', ')}</span>
