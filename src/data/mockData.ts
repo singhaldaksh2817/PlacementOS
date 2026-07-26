@@ -430,27 +430,290 @@ export const AI_MENTOR_RESPONSES: Record<string, string> = {
 };
 
 export const DSA_PROBLEMS = [
-  { id: 'p1', title: 'Two Sum', difficulty: 'Easy', topic: 'Arrays', companies: ['Google', 'Amazon', 'Microsoft'], solved: true },
-  { id: 'p2', title: 'Add Two Numbers', difficulty: 'Medium', topic: 'Linked List', companies: ['Amazon', 'Microsoft'], solved: true },
-  { id: 'p3', title: 'Longest Substring Without Repeating', difficulty: 'Medium', topic: 'Sliding Window', companies: ['Google', 'Amazon', 'Adobe'], solved: true },
-  { id: 'p4', title: 'Median of Two Sorted Arrays', difficulty: 'Hard', topic: 'Binary Search', companies: ['Google', 'Goldman Sachs'], solved: false },
-  { id: 'p5', title: 'Longest Palindromic Substring', difficulty: 'Medium', topic: 'Dynamic Programming', companies: ['Amazon', 'Microsoft', 'Adobe'], solved: false },
-  { id: 'p6', title: 'Container With Most Water', difficulty: 'Medium', topic: 'Two Pointer', companies: ['Google', 'Amazon'], solved: true },
-  { id: 'p7', title: 'Trapping Rain Water', difficulty: 'Hard', topic: 'Two Pointer', companies: ['Amazon', 'Google', 'Microsoft'], solved: false },
-  { id: 'p8', title: 'LRU Cache', difficulty: 'Medium', topic: 'HashMap', companies: ['Google', 'Amazon', 'Microsoft', 'Oracle'], solved: true },
-  { id: 'p9', title: 'Word Ladder', difficulty: 'Hard', topic: 'BFS', companies: ['Google', 'Amazon'], solved: false },
-  { id: 'p10', title: 'Clone Graph', difficulty: 'Medium', topic: 'Graphs', companies: ['Facebook', 'Amazon', 'Microsoft'], solved: true },
-  { id: 'p11', title: 'Coin Change', difficulty: 'Medium', topic: 'Dynamic Programming', companies: ['Google', 'Amazon', 'Goldman Sachs'], solved: false },
-  { id: 'p12', title: 'Number of Islands', difficulty: 'Medium', topic: 'DFS', companies: ['Amazon', 'Google', 'Flipkart'], solved: true },
-  { id: 'p13', title: 'Merge Intervals', difficulty: 'Medium', topic: 'Arrays', companies: ['Google', 'Facebook', 'Microsoft', 'Flipkart'], solved: true },
-  { id: 'p14', title: 'Word Search', difficulty: 'Medium', topic: 'Backtracking', companies: ['Amazon', 'Microsoft', 'Adobe'], solved: false },
-  { id: 'p15', title: 'Maximum Subarray', difficulty: 'Easy', topic: 'Dynamic Programming', companies: ['Amazon', 'Google', 'Adobe', 'Oracle'], solved: true },
-  { id: 'p16', title: 'Meeting Rooms II', difficulty: 'Medium', topic: 'Heap', companies: ['Google', 'Amazon', 'Microsoft'], solved: false },
-  { id: 'p17', title: 'Course Schedule II', difficulty: 'Medium', topic: 'Graphs', companies: ['Google', 'Amazon', 'Adobe'], solved: false },
-  { id: 'p18', title: 'Design In-Memory File System', difficulty: 'Hard', topic: 'System Design', companies: ['Google', 'Amazon'], solved: false },
-  { id: 'p19', title: 'Rotting Oranges', difficulty: 'Medium', topic: 'BFS', companies: ['Amazon', 'Microsoft', 'Flipkart'], solved: true },
-  { id: 'p20', title: 'Valid Parentheses', difficulty: 'Easy', topic: 'Stacks', companies: ['Google', 'Amazon', 'Microsoft', 'Oracle', 'Adobe'], solved: true },
+  {
+    id: 'p1',
+    title: 'Two Sum',
+    difficulty: 'Easy',
+    topic: 'Arrays',
+    companies: ['Google', 'Amazon', 'Microsoft'],
+    solved: true,
+    description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution.',
+    examples: [
+      { input: 'nums = [2,7,11,15], target = 9', output: '[0,1]', explanation: 'Because nums[0] + nums[1] == 9, we return [0, 1].' },
+      { input: 'nums = [3,2,4], target = 6', output: '[1,2]', explanation: 'nums[1] + nums[2] == 6.' },
+    ],
+    constraints: ['2 <= nums.length <= 10^4', '-10^9 <= nums[i] <= 10^9', 'Only one valid answer exists.'],
+    expectedOutput: '[0, 1]'
+  },
+  {
+    id: 'p2',
+    title: 'Add Two Numbers',
+    difficulty: 'Medium',
+    topic: 'Linked List',
+    companies: ['Amazon', 'Microsoft'],
+    solved: true,
+    description: 'You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.',
+    examples: [
+      { input: 'l1 = [2,4,3], l2 = [5,6,4]', output: '[7,0,8]', explanation: '342 + 465 = 807.' },
+    ],
+    constraints: ['1 <= Number of nodes <= 100', '0 <= Node.val <= 9'],
+    expectedOutput: '[7, 0, 8]'
+  },
+  {
+    id: 'p3',
+    title: 'Longest Substring Without Repeating',
+    difficulty: 'Medium',
+    topic: 'Sliding Window',
+    companies: ['Google', 'Amazon', 'Adobe'],
+    solved: true,
+    description: 'Given a string s, find the length of the longest substring without repeating characters.',
+    examples: [
+      { input: 's = "abcabcbb"', output: '3', explanation: 'The answer is "abc", with the length of 3.' },
+      { input: 's = "bbbbb"', output: '1', explanation: 'The answer is "b", with the length of 1.' },
+    ],
+    constraints: ['0 <= s.length <= 5 * 10^4', 's consists of English letters, digits, symbols and spaces.'],
+    expectedOutput: '3'
+  },
+  {
+    id: 'p4',
+    title: 'Median of Two Sorted Arrays',
+    difficulty: 'Hard',
+    topic: 'Binary Search',
+    companies: ['Google', 'Goldman Sachs'],
+    solved: false,
+    description: 'Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).',
+    examples: [
+      { input: 'nums1 = [1,3], nums2 = [2]', output: '2.00000', explanation: 'merged array = [1,2,3] and median is 2.' },
+    ],
+    constraints: ['nums1.length == m', 'nums2.length == n', '0 <= m <= 1000', '0 <= n <= 1000'],
+    expectedOutput: '2.0'
+  },
+  {
+    id: 'p5',
+    title: 'Longest Palindromic Substring',
+    difficulty: 'Medium',
+    topic: 'Dynamic Programming',
+    companies: ['Amazon', 'Microsoft', 'Adobe'],
+    solved: false,
+    description: 'Given a string s, return the longest palindromic substring in s.',
+    examples: [
+      { input: 's = "babad"', output: '"bab"', explanation: '"aba" is also a valid answer.' },
+    ],
+    constraints: ['1 <= s.length <= 1000'],
+    expectedOutput: 'bab'
+  },
+  {
+    id: 'p6',
+    title: 'Container With Most Water',
+    difficulty: 'Medium',
+    topic: 'Two Pointer',
+    companies: ['Google', 'Amazon'],
+    solved: true,
+    description: 'You are given an integer array height of length n. Find two lines that together with the x-axis form a container, such that the container contains the most water.',
+    examples: [
+      { input: 'height = [1,8,6,2,5,4,8,3,7]', output: '49', explanation: 'The max area of water the container can contain is 49.' },
+    ],
+    constraints: ['n == height.length', '2 <= n <= 10^5', '0 <= height[i] <= 10^4'],
+    expectedOutput: '49'
+  },
+  {
+    id: 'p7',
+    title: 'Trapping Rain Water',
+    difficulty: 'Hard',
+    topic: 'Two Pointer',
+    companies: ['Amazon', 'Google', 'Microsoft'],
+    solved: false,
+    description: 'Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.',
+    examples: [
+      { input: 'height = [0,1,0,2,1,0,1,3,2,1,2,1]', output: '6', explanation: '6 units of rain water are trapped.' },
+    ],
+    constraints: ['n == height.length', '1 <= n <= 2 * 10^4', '0 <= height[i] <= 10^5'],
+    expectedOutput: '6'
+  },
+  {
+    id: 'p8',
+    title: 'LRU Cache',
+    difficulty: 'Medium',
+    topic: 'HashMap',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Oracle'],
+    solved: true,
+    description: 'Design a data structure that follows the constraints of a Least Recently Used (LRU) cache. Implement LRUCache class with get(key) and put(key, value) in O(1) time complexity.',
+    examples: [
+      { input: 'LRUCache(2), put(1,1), put(2,2), get(1), put(3,3), get(2)', output: '[null, null, null, 1, null, -1]' },
+    ],
+    constraints: ['1 <= capacity <= 3000', '0 <= key <= 10^4'],
+    expectedOutput: '1'
+  },
+  {
+    id: 'p9',
+    title: 'Word Ladder',
+    difficulty: 'Hard',
+    topic: 'BFS',
+    companies: ['Google', 'Amazon'],
+    solved: false,
+    description: 'Given two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord.',
+    examples: [
+      { input: 'beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]', output: '5' },
+    ],
+    constraints: ['1 <= beginWord.length <= 10', 'endWord.length == beginWord.length'],
+    expectedOutput: '5'
+  },
+  {
+    id: 'p10',
+    title: 'Clone Graph',
+    difficulty: 'Medium',
+    topic: 'Graphs',
+    companies: ['Facebook', 'Amazon', 'Microsoft'],
+    solved: true,
+    description: 'Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph.',
+    examples: [
+      { input: 'adjList = [[2,4],[1,3],[2,4],[1,3]]', output: '[[2,4],[1,3],[2,4],[1,3]]' },
+    ],
+    constraints: ['The number of nodes in the graph is in the range [0, 100].'],
+    expectedOutput: '[[2,4],[1,3],[2,4],[1,3]]'
+  },
+  {
+    id: 'p11',
+    title: 'Coin Change',
+    difficulty: 'Medium',
+    topic: 'Dynamic Programming',
+    companies: ['Google', 'Amazon', 'Goldman Sachs'],
+    solved: false,
+    description: 'You are given an integer array coins representing coins of different denominations and an integer amount. Return the fewest number of coins that you need to make up that amount.',
+    examples: [
+      { input: 'coins = [1,2,5], amount = 11', output: '3', explanation: '11 = 5 + 5 + 1' },
+    ],
+    constraints: ['1 <= coins.length <= 12', '1 <= amount <= 10^4'],
+    expectedOutput: '3'
+  },
+  {
+    id: 'p12',
+    title: 'Number of Islands',
+    difficulty: 'Medium',
+    topic: 'DFS',
+    companies: ['Amazon', 'Google', 'Flipkart'],
+    solved: true,
+    description: 'Given an m x n 2D binary grid grid which represents a map of "1"s (land) and "0"s (water), return the number of islands.',
+    examples: [
+      { input: 'grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]', output: '1' },
+    ],
+    constraints: ['m == grid.length', 'n == grid[i].length', '1 <= m, n <= 300'],
+    expectedOutput: '1'
+  },
+  {
+    id: 'p13',
+    title: 'Merge Intervals',
+    difficulty: 'Medium',
+    topic: 'Arrays',
+    companies: ['Google', 'Facebook', 'Microsoft', 'Flipkart'],
+    solved: true,
+    description: 'Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals and return an array of the non-overlapping intervals.',
+    examples: [
+      { input: 'intervals = [[1,3],[2,6],[8,10],[15,18]]', output: '[[1,6],[8,10],[15,18]]' },
+    ],
+    constraints: ['1 <= intervals.length <= 10^4'],
+    expectedOutput: '[[1,6],[8,10],[15,18]]'
+  },
+  {
+    id: 'p14',
+    title: 'Word Search',
+    difficulty: 'Medium',
+    topic: 'Backtracking',
+    companies: ['Amazon', 'Microsoft', 'Adobe'],
+    solved: false,
+    description: 'Given an m x n grid of characters board and a string word, return true if word exists in the grid.',
+    examples: [
+      { input: 'board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"', output: 'true' },
+    ],
+    constraints: ['m == board.length', 'n == board[i].length', '1 <= m, n <= 6'],
+    expectedOutput: 'true'
+  },
+  {
+    id: 'p15',
+    title: 'Maximum Subarray',
+    difficulty: 'Easy',
+    topic: 'Dynamic Programming',
+    companies: ['Amazon', 'Google', 'Adobe', 'Oracle'],
+    solved: true,
+    description: 'Given an integer array nums, find the subarray with the largest sum, and return its sum.',
+    examples: [
+      { input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', output: '6', explanation: 'The subarray [4,-1,2,1] has the largest sum 6.' },
+    ],
+    constraints: ['1 <= nums.length <= 10^5', '-10^4 <= nums[i] <= 10^4'],
+    expectedOutput: '6'
+  },
+  {
+    id: 'p16',
+    title: 'Meeting Rooms II',
+    difficulty: 'Medium',
+    topic: 'Heap',
+    companies: ['Google', 'Amazon', 'Microsoft'],
+    solved: false,
+    description: 'Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...], find the minimum number of conference rooms required.',
+    examples: [
+      { input: 'intervals = [[0,30],[5,10],[15,20]]', output: '2' },
+    ],
+    constraints: ['0 <= intervals.length <= 10^4'],
+    expectedOutput: '2'
+  },
+  {
+    id: 'p17',
+    title: 'Course Schedule II',
+    difficulty: 'Medium',
+    topic: 'Graphs',
+    companies: ['Google', 'Amazon', 'Adobe'],
+    solved: false,
+    description: 'There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. Return the ordering of courses you should take to finish all courses.',
+    examples: [
+      { input: 'numCourses = 2, prerequisites = [[1,0]]', output: '[0,1]' },
+    ],
+    constraints: ['1 <= numCourses <= 2000'],
+    expectedOutput: '[0,1]'
+  },
+  {
+    id: 'p18',
+    title: 'Design In-Memory File System',
+    difficulty: 'Hard',
+    topic: 'System Design',
+    companies: ['Google', 'Amazon'],
+    solved: false,
+    description: 'Design a data structure that simulates an in-memory file system with ls, mkdir, addContentToFile, and readContentFromFile operations.',
+    examples: [
+      { input: 'FileSystem(), ls("/"), mkdir("/a/b/c")', output: '[]' },
+    ],
+    constraints: ['1 <= path.length <= 100'],
+    expectedOutput: '[]'
+  },
+  {
+    id: 'p19',
+    title: 'Rotting Oranges',
+    difficulty: 'Medium',
+    topic: 'BFS',
+    companies: ['Amazon', 'Microsoft', 'Flipkart'],
+    solved: true,
+    description: 'You are given an m x n grid where each cell can have 0 (empty), 1 (fresh orange), or 2 (rotten orange). Return the minimum number of minutes until no cell has a fresh orange.',
+    examples: [
+      { input: 'grid = [[2,1,1],[1,1,0],[0,1,1]]', output: '4' },
+    ],
+    constraints: ['m == grid.length', 'n == grid[i].length', '1 <= m, n <= 10'],
+    expectedOutput: '4'
+  },
+  {
+    id: 'p20',
+    title: 'Valid Parentheses',
+    difficulty: 'Easy',
+    topic: 'Stacks',
+    companies: ['Google', 'Amazon', 'Microsoft', 'Oracle', 'Adobe'],
+    solved: true,
+    description: 'Given a string s containing just the characters "(", ")", "{", "}", "[" and "]", determine if the input string is valid.',
+    examples: [
+      { input: 's = "()[]{}"', output: 'true' },
+    ],
+    constraints: ['1 <= s.length <= 10^4'],
+    expectedOutput: 'true'
+  },
 ];
+
 
 
 export const ANALYTICS_DATA = {

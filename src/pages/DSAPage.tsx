@@ -407,11 +407,12 @@ export default function DSAPage() {
           {activeTab === 'ide' && (
             <motion.div key="ide" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="space-y-4">
-              <div className="glass-card p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <span className={`badge text-xs ${difficultyColor[selectedProblem.difficulty]} mr-2`}>{selectedProblem.difficulty}</span>
-                    <span className="font-heading font-bold text-white">{selectedProblem.title}</span>
+              <div className="glass-card p-5 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`badge text-xs ${difficultyColor[selectedProblem.difficulty]}`}>{selectedProblem.difficulty}</span>
+                    <h2 className="font-heading font-bold text-white text-lg">{selectedProblem.title}</h2>
+                    <span className="text-xs text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">{selectedProblem.topic}</span>
                   </div>
                   <div className="flex gap-2">
                     {(['python', 'javascript', 'cpp', 'java'] as const).map(lang => (
@@ -420,10 +421,44 @@ export default function DSAPage() {
                         {lang === 'cpp' ? 'C++' : lang.charAt(0).toUpperCase() + lang.slice(1)}
                       </button>
                     ))}
-
                   </div>
                 </div>
+
+                {/* Problem Description */}
+                <div className="text-sm text-slate-300 leading-relaxed pt-1">
+                  {selectedProblem.description || `Given problem statement for ${selectedProblem.title}. Implement an optimal solution.`}
+                </div>
+
+                {/* Examples */}
+                {selectedProblem.examples && selectedProblem.examples.length > 0 && (
+                  <div className="space-y-2 pt-1">
+                    {selectedProblem.examples.map((ex: any, idx: number) => (
+                      <div key={idx} className="p-3 rounded-xl bg-white/3 border border-white/5 text-xs font-mono">
+                        <div className="text-indigo-300 font-semibold mb-1">Example {idx + 1}:</div>
+                        <div><span className="text-slate-400">Input:</span> <span className="text-white">{ex.input}</span></div>
+                        <div><span className="text-slate-400">Output:</span> <span className="text-emerald-300">{ex.output}</span></div>
+                        {ex.explanation && <div className="text-slate-400 mt-1 font-sans"><span className="text-slate-400 font-semibold">Explanation:</span> {ex.explanation}</div>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Constraints & Companies */}
+                <div className="flex items-center justify-between text-xs text-slate-400 pt-1 flex-wrap gap-2 border-t border-white/5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 font-semibold">Target Companies:</span>
+                    {selectedProblem.companies?.map((c: string) => (
+                      <span key={c} className="text-xs text-indigo-200 bg-white/5 px-2 py-0.5 rounded border border-white/10">{c}</span>
+                    ))}
+                  </div>
+                  {selectedProblem.constraints && (
+                    <div className="text-xs text-slate-400">
+                      <span className="font-semibold text-slate-400">Constraints:</span> {selectedProblem.constraints.join(' • ')}
+                    </div>
+                  )}
+                </div>
               </div>
+
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="glass-card overflow-hidden">

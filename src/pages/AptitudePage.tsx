@@ -214,10 +214,11 @@ export default function AptitudePage() {
                 </span>
                 <span className="text-xs text-slate-500">{question.subcategory}</span>
               </div>
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${urgentTime ? 'bg-red-500/15 border border-red-500/30' : 'bg-white/5 border border-white/10'}`}>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${urgentTime ? 'bg-red-500/20 border border-red-500/40 animate-pulse' : 'bg-white/5 border border-white/10'}`}>
                 <Clock size={14} className={urgentTime ? 'text-red-400' : 'text-slate-400'} />
                 <span className={`font-mono font-bold text-sm ${urgentTime ? 'text-red-400' : 'text-white'}`}>{formatTime(timeLeft)}</span>
               </div>
+
             </div>
             <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
               <motion.div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
