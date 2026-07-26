@@ -146,13 +146,39 @@ export default function DSAPage() {
     if (location.state?.openIde) {
       setActiveTab('ide');
     }
-    if (location.state?.problemTitle) {
-      const match = DSA_PROBLEMS.find(p => p.title.toLowerCase().includes(location.state.problemTitle.toLowerCase()));
-      if (match) {
-        setSelectedProblem(match);
-      }
+    if (location.state?.problemId) {
+      const match = DSA_PROBLEMS.find(p => p.id === location.state.problemId);
+      if (match) setSelectedProblem(match);
+    } else if (location.state?.problemTitle) {
+      const searchTitle = location.state.problemTitle.toLowerCase();
+      const match = DSA_PROBLEMS.find(p =>
+        p.title.toLowerCase() === searchTitle ||
+        p.title.toLowerCase().includes(searchTitle) ||
+        searchTitle.includes(p.title.toLowerCase())
+      );
+      if (match) setSelectedProblem(match);
     }
   }, [location.state]);
+
+  // Update code editor skeleton when selectedProblem or language changes
+  useEffect(() => {
+    if (!selectedProblem) return;
+    const pTitle = selectedProblem.title;
+    const pDiff = selectedProblem.difficulty;
+    const pTopic = selectedProblem.topic;
+    const pComp = selectedProblem.companies ? selectedProblem.companies.join(', ') : 'Top Tech';
+
+    const py = `# ${pTitle} (${pDiff})\n# Topic: ${pTopic} | Target: ${pComp}\n\ndef solution():\n    # Write your solution here\n    pass\n`;
+    const js = `// ${pTitle} (${pDiff})\n// Topic: ${pTopic} | Target: ${pComp}\n\nfunction solution() {\n  // Write your solution here\n}\n`;
+    const cpp = `// ${pTitle} (${pDiff})\n// Topic: ${pTopic} | Target: ${pComp}\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n`;
+    const java = `// ${pTitle} (${pDiff})\n// Topic: ${pTopic} | Target: ${pComp}\n\npublic class Solution {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n`;
+
+    if (language === 'python') setCode(py);
+    else if (language === 'javascript') setCode(js);
+    else if (language === 'cpp') setCode(cpp);
+    else if (language === 'java') setCode(java);
+  }, [selectedProblem?.id, language]);
+
 
   const [customStdin, setCustomStdin] = useState('');
   const [consoleTab, setConsoleTab] = useState<'output' | 'stdin'>('output');
@@ -389,11 +415,12 @@ export default function DSAPage() {
                   </div>
                   <div className="flex gap-2">
                     {(['python', 'javascript', 'cpp', 'java'] as const).map(lang => (
-                      <button key={lang} onClick={() => { setLanguage(lang); setCode(STARTER_CODE[lang]); }}
-                        className={`text-xs px-3 py-1.5 rounded-lg transition-all ${language === lang ? 'tab-active' : 'tab-inactive'}`}>
+                      <button key={lang} onClick={() => setLanguage(lang)}
+                        className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${language === lang ? 'tab-active' : 'tab-inactive'}`}>
                         {lang === 'cpp' ? 'C++' : lang.charAt(0).toUpperCase() + lang.slice(1)}
                       </button>
                     ))}
+
                   </div>
                 </div>
               </div>

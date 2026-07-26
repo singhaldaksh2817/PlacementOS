@@ -442,10 +442,16 @@ export const DSA_PROBLEMS = [
   { id: 'p10', title: 'Clone Graph', difficulty: 'Medium', topic: 'Graphs', companies: ['Facebook', 'Amazon', 'Microsoft'], solved: true },
   { id: 'p11', title: 'Coin Change', difficulty: 'Medium', topic: 'Dynamic Programming', companies: ['Google', 'Amazon', 'Goldman Sachs'], solved: false },
   { id: 'p12', title: 'Number of Islands', difficulty: 'Medium', topic: 'DFS', companies: ['Amazon', 'Google', 'Flipkart'], solved: true },
-  { id: 'p13', title: 'Merge Intervals', difficulty: 'Medium', topic: 'Arrays', companies: ['Google', 'Facebook', 'Microsoft'], solved: true },
-  { id: 'p14', title: 'Word Search', difficulty: 'Medium', topic: 'Backtracking', companies: ['Amazon', 'Microsoft'], solved: false },
-  { id: 'p15', title: 'Maximum Subarray', difficulty: 'Easy', topic: 'Dynamic Programming', companies: ['Amazon', 'Google', 'Adobe'], solved: true },
+  { id: 'p13', title: 'Merge Intervals', difficulty: 'Medium', topic: 'Arrays', companies: ['Google', 'Facebook', 'Microsoft', 'Flipkart'], solved: true },
+  { id: 'p14', title: 'Word Search', difficulty: 'Medium', topic: 'Backtracking', companies: ['Amazon', 'Microsoft', 'Adobe'], solved: false },
+  { id: 'p15', title: 'Maximum Subarray', difficulty: 'Easy', topic: 'Dynamic Programming', companies: ['Amazon', 'Google', 'Adobe', 'Oracle'], solved: true },
+  { id: 'p16', title: 'Meeting Rooms II', difficulty: 'Medium', topic: 'Heap', companies: ['Google', 'Amazon', 'Microsoft'], solved: false },
+  { id: 'p17', title: 'Course Schedule II', difficulty: 'Medium', topic: 'Graphs', companies: ['Google', 'Amazon', 'Adobe'], solved: false },
+  { id: 'p18', title: 'Design In-Memory File System', difficulty: 'Hard', topic: 'System Design', companies: ['Google', 'Amazon'], solved: false },
+  { id: 'p19', title: 'Rotting Oranges', difficulty: 'Medium', topic: 'BFS', companies: ['Amazon', 'Microsoft', 'Flipkart'], solved: true },
+  { id: 'p20', title: 'Valid Parentheses', difficulty: 'Easy', topic: 'Stacks', companies: ['Google', 'Amazon', 'Microsoft', 'Oracle', 'Adobe'], solved: true },
 ];
+
 
 export const ANALYTICS_DATA = {
   productivityByDay: [

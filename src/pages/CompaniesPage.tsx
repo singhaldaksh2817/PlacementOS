@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { COMPANIES } from '../data/mockData';
+import { COMPANIES, DSA_PROBLEMS } from '../data/mockData';
+
 import type { Company } from '../types';
 
 const tierColors: Record<string, string> = {
@@ -320,31 +321,29 @@ export default function CompaniesPage() {
                 </p>
 
                 <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
-                  {[
-                    { title: 'Word Ladder Length', diff: 'Hard', topic: 'Graphs / BFS', link: '/dsa' },
-                    { title: 'Meeting Rooms II', diff: 'Medium', topic: 'Intervals / Heap', link: '/dsa' },
-                    { title: 'Median of Two Sorted Arrays', diff: 'Hard', topic: 'Binary Search', link: '/dsa' },
-                    { title: 'Course Schedule II', diff: 'Medium', topic: 'Topological Sort', link: '/dsa' },
-                    { title: 'LRU Cache Design', diff: 'Medium', topic: 'Hash + Doubly LL', link: '/dsa' },
-                  ].map((pyq, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/4 border border-white/8 hover:border-indigo-500/30 transition-all">
-                      <div>
-                        <div className="text-sm font-semibold text-white">{pyq.title}</div>
-                        <div className="text-xs text-slate-400 mt-0.5">{pyq.topic} • <span className={pyq.diff === 'Hard' ? 'text-red-400' : 'text-amber-400'}>{pyq.diff}</span></div>
+                  {(() => {
+                    const matched = DSA_PROBLEMS.filter(p => p.companies.includes(pyqCompany));
+                    const list = matched.length >= 3 ? matched : [...matched, ...DSA_PROBLEMS.filter(p => !p.companies.includes(pyqCompany))].slice(0, 5);
+                    return list.map(pyq => (
+                      <div key={pyq.id} className="flex items-center justify-between p-3 rounded-xl bg-white/4 border border-white/8 hover:border-indigo-500/30 transition-all">
+                        <div>
+                          <div className="text-sm font-semibold text-white">{pyq.title}</div>
+                          <div className="text-xs text-slate-400 mt-0.5">{pyq.topic} • <span className={pyq.difficulty === 'Hard' ? 'text-red-400' : pyq.difficulty === 'Medium' ? 'text-amber-400' : 'text-emerald-400'}>{pyq.difficulty}</span></div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setPyqCompany(null);
+                            navigate('/dsa', { state: { openIde: true, problemId: pyq.id, problemTitle: pyq.title } });
+                          }}
+                          className="px-3 py-1.5 rounded-lg btn-gradient text-xs font-semibold flex items-center gap-1 hover:opacity-90 transition-all cursor-pointer"
+                        >
+                          <Code2 size={12} /> Solve in IDE
+                        </button>
                       </div>
-                      <button
-                        onClick={() => {
-                          setPyqCompany(null);
-                          navigate('/dsa', { state: { openIde: true, problemTitle: pyq.title } });
-                        }}
-                        className="px-3 py-1.5 rounded-lg btn-gradient text-xs font-semibold flex items-center gap-1 hover:opacity-90 transition-all cursor-pointer"
-                      >
-                        <Code2 size={12} /> Solve in IDE
-                      </button>
-
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
+
 
                 <div className="pt-2 text-right">
                   <button onClick={() => setPyqCompany(null)} className="px-4 py-2 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white">
