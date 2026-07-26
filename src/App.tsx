@@ -25,6 +25,9 @@ const AdminPage = lazy(() => import('./pages/AdminPage'));
 const AgentOrchestrator = lazy(() => import('./pages/AgentOrchestrator'));
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const OASimulatorPage = lazy(() => import('./pages/OASimulatorPage'));
+const SystemDesignPage = lazy(() => import('./pages/SystemDesignPage'));
+const DrivesPage = lazy(() => import('./pages/DrivesPage'));
+
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -76,7 +79,10 @@ export default function App() {
             <Route path="/roadmap" element={<RoadmapPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/oa-simulator" element={<OASimulatorPage />} />
+            <Route path="/system-design" element={<SystemDesignPage />} />
+            <Route path="/drives" element={<DrivesPage />} />
             <Route path="/companies" element={<CompaniesPage />} />
+
             <Route path="/resume" element={<ResumePage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/chat" element={<MentorChatPage />} />

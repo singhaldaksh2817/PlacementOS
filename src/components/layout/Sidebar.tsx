@@ -4,13 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Code2, Brain, MessageSquare, Map, Building2,
   FileText, BarChart3, Settings, ChevronLeft, ChevronRight,
-  Zap, Trophy, Flame, LogOut, Shield, Cpu
+  Zap, Trophy, Flame, LogOut, Shield, Cpu, Layers, Briefcase
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/dsa', icon: Code2, label: 'DSA Tracker' },
+  { path: '/system-design', icon: Layers, label: 'System Design 📐' },
+  { path: '/drives', icon: Briefcase, label: 'Job Drives 💼' },
   { path: '/aptitude', icon: Brain, label: 'Aptitude' },
   { path: '/interview', icon: MessageSquare, label: 'Interview' },
   { path: '/roadmap', icon: Map, label: 'Roadmap' },
@@ -22,6 +24,7 @@ const navItems = [
   { path: '/chat', icon: MessageSquare, label: 'AI Mentor' },
   { path: '/orchestrator', icon: Cpu, label: 'Agent Engine' },
 ];
+
 
 const bottomItems = [
   { path: '/settings', icon: Settings, label: 'Settings' },
