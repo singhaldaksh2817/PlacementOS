@@ -333,11 +333,15 @@ export default function CompaniesPage() {
                         <div className="text-xs text-slate-400 mt-0.5">{pyq.topic} • <span className={pyq.diff === 'Hard' ? 'text-red-400' : 'text-amber-400'}>{pyq.diff}</span></div>
                       </div>
                       <button
-                        onClick={() => { setPyqCompany(null); }}
-                        className="px-3 py-1.5 rounded-lg btn-gradient text-xs font-semibold flex items-center gap-1"
+                        onClick={() => {
+                          setPyqCompany(null);
+                          navigate('/dsa', { state: { openIde: true, problemTitle: pyq.title } });
+                        }}
+                        className="px-3 py-1.5 rounded-lg btn-gradient text-xs font-semibold flex items-center gap-1 hover:opacity-90 transition-all cursor-pointer"
                       >
                         <Code2 size={12} /> Solve in IDE
                       </button>
+
                     </div>
                   ))}
                 </div>

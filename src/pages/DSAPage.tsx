@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
 import TopBar from '../components/layout/TopBar';
@@ -11,6 +12,7 @@ import { DSA_PROBLEMS } from '../data/mockData';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
+
 
 const TOPICS = ['Arrays', 'Strings', 'Linked List', 'Trees', 'Graphs', 'Dynamic Programming', 'HashMap', 'Stacks', 'Queues', 'Binary Search', 'Two Pointer', 'Sliding Window', 'Heap', 'Trie', 'Backtracking', 'Greedy', 'System Design', 'BFS', 'DFS'];
 
@@ -138,8 +140,24 @@ export default function DSAPage() {
   const [hintLevel, setHintLevel] = useState(1);
   const [hintLoading, setHintLoading] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState(DSA_PROBLEMS[0]);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.openIde) {
+      setActiveTab('ide');
+    }
+    if (location.state?.problemTitle) {
+      const match = DSA_PROBLEMS.find(p => p.title.toLowerCase().includes(location.state.problemTitle.toLowerCase()));
+      if (match) {
+        setSelectedProblem(match);
+      }
+    }
+  }, [location.state]);
+
   const [customStdin, setCustomStdin] = useState('');
   const [consoleTab, setConsoleTab] = useState<'output' | 'stdin'>('output');
+
+
 
   const filteredProblems = DSA_PROBLEMS.filter(p => {
     const matchTopic = selectedTopic === 'All' || p.topic === selectedTopic;
