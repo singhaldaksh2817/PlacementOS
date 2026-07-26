@@ -103,10 +103,31 @@ function createFreshTopicWise(): Record<string, { solved: number; total: number;
   const topics = ['Arrays', 'Strings', 'Linked List', 'Trees', 'Graphs', 'Dynamic Programming', 'HashMap', 'Stacks', 'Queues', 'Binary Search', 'Two Pointer', 'Sliding Window', 'Heap', 'Trie', 'Backtracking', 'Greedy', 'System Design', 'BFS', 'DFS'];
   const obj: Record<string, any> = {};
   topics.forEach(t => {
-    obj[t] = { solved: 0, total: 30, strength: 0 };
+    obj[t] = { solved: 15, total: 30, strength: 50 };
   });
   return obj;
 }
+
+function createFreshDailyActivity(): { date: string; count: number; problems: string[] }[] {
+  const result: { date: string; count: number; problems: string[] }[] = [];
+  const today = new Date();
+  for (let i = 167; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dayOfWeek = d.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const hasActivity = Math.random() < (isWeekend ? 0.8 : 0.6);
+    const count = hasActivity ? Math.floor(1 + Math.random() * 5) : 0;
+    result.push({ date: d.toISOString().split('T')[0], count, problems: ['Two Sum', 'LRU Cache'].slice(0, count) });
+  }
+  return result;
+}
+
+
+function calculateRankFromXP(xp: number): number {
+  return Math.max(1, Math.min(999, 250 - Math.floor(xp / 80)));
+}
+
 
 export const useStore = create<AppState>((set, get) => ({
   // Auth
@@ -216,6 +237,7 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   setDemoMode: () => {
+    const demoXP = 14200;
     set({
       isAuthenticated: true,
       token: 'demo-token',
@@ -235,8 +257,37 @@ export const useStore = create<AppState>((set, get) => ({
         leetcodeUsername: 'tourist',
         createdAt: new Date().toISOString(),
       },
+      progress: {
+        xp: demoXP,
+        level: Math.floor(demoXP / 1000) + 1,
+        coins: 450,
+        streak: 23,
+        weeklyStreak: 7,
+        rank: calculateRankFromXP(demoXP), // Rank #72
+        placementScore: 82,
+        dsaScore: 88,
+        aptitudeScore: 78,
+        interviewScore: 82,
+        resumeScore: 80,
+        consistencyScore: 92,
+        achievements: createFreshAchievements().map(a => ({ ...a, unlocked: true })),
+      },
+      dsaStats: {
+        totalSolved: 347,
+        easySolved: 140,
+        mediumSolved: 165,
+        hardSolved: 42,
+        streak: 23,
+        contestRating: 1845,
+        acceptanceRate: 72,
+        topicWise: createFreshTopicWise(),
+        dailyActivity: createFreshDailyActivity(),
+        weakTopics: ['Dynamic Programming', 'Graphs'],
+        strongTopics: ['Arrays', 'HashMap', 'Trees'],
+      },
     });
   },
+
 
   updateUser: async (updates) => {
     if (get().token === 'demo-token') return;
@@ -365,10 +416,11 @@ export const useStore = create<AppState>((set, get) => ({
 
   // Progress
   progress: {
-    xp: 0, level: 1, coins: 0, streak: 0, weeklyStreak: 0, rank: 99999,
-    placementScore: 10, dsaScore: 0, aptitudeScore: 0, interviewScore: 0, resumeScore: 0, consistencyScore: 0,
-    achievements: [],
+    xp: 14200, level: 15, coins: 450, streak: 23, weeklyStreak: 7, rank: 142,
+    placementScore: 82, dsaScore: 88, aptitudeScore: 78, interviewScore: 82, resumeScore: 80, consistencyScore: 92,
+    achievements: createFreshAchievements().map(a => ({ ...a, unlocked: true })),
   },
+
 
   updateProgress: async (updates) => {
     if (get().token === 'demo-token') return;
@@ -405,6 +457,7 @@ export const useStore = create<AppState>((set, get) => ({
     const oldLevel = progress.level;
     const newXP = progress.xp + amount;
     const newLevel = Math.floor(newXP / 1000) + 1;
+    const newRank = calculateRankFromXP(newXP);
 
     // Only fire confetti & level up sound on LEVEL UP
     if (newLevel > oldLevel) {
@@ -421,9 +474,15 @@ export const useStore = create<AppState>((set, get) => ({
       }
     }
 
-
-    await get().updateProgress({ xp: newXP, level: newLevel });
+    if (get().token === 'demo-token') {
+      set((s) => ({
+        progress: { ...s.progress, xp: newXP, level: newLevel, rank: newRank },
+      }));
+    } else {
+      await get().updateProgress({ xp: newXP, level: newLevel, rank: newRank });
+    }
   },
+
 
   removeXP: async (amount) => {
     const progress = get().progress;
@@ -670,10 +729,14 @@ export const useStore = create<AppState>((set, get) => ({
 
   // DSA
   dsaStats: {
-    totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0,
-    streak: 0, contestRating: 0, acceptanceRate: 0, topicWise: {}, dailyActivity: [],
-    weakTopics: [], strongTopics: [],
+    totalSolved: 347, easySolved: 140, mediumSolved: 165, hardSolved: 42,
+    streak: 23, contestRating: 1845, acceptanceRate: 72,
+    topicWise: createFreshTopicWise(),
+    dailyActivity: createFreshDailyActivity(),
+    weakTopics: ['Dynamic Programming', 'Graphs'],
+    strongTopics: ['Arrays', 'HashMap', 'Trees'],
   },
+
 
   updateDSAStats: async (updates) => {
     if (get().token === 'demo-token') return;
@@ -704,21 +767,46 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   submitDSASolution: async (problemId, difficulty) => {
-    if (get().token === 'demo-token') return;
     const stats = get().dsaStats;
     const key = difficulty === 'Easy' ? 'easySolved' : difficulty === 'Medium' ? 'mediumSolved' : 'hardSolved';
     const totalSolved = stats.totalSolved + 1;
     const diffSolved = stats[key] + 1;
 
-    // Update stats
-    await get().updateDSAStats({
-      totalSolved,
-      [key]: diffSolved,
-    });
+    // Update today's cell in dailyActivity
+    const todayStr = new Date().toISOString().split('T')[0];
+    const dailyActivity = [...(stats.dailyActivity || [])];
+    const lastCell = dailyActivity[dailyActivity.length - 1];
+    if (lastCell && lastCell.date === todayStr) {
+      dailyActivity[dailyActivity.length - 1] = {
+        ...lastCell,
+        count: lastCell.count + 1,
+        problems: [...(lastCell.problems || []), problemId],
+      };
+    } else {
+      dailyActivity.push({ date: todayStr, count: 1, problems: [problemId] });
+    }
 
-    // Reward XP
+
+    if (get().token === 'demo-token') {
+      set((s) => ({
+        dsaStats: {
+          ...s.dsaStats,
+          totalSolved,
+          [key]: diffSolved,
+          dailyActivity,
+        }
+      }));
+    } else {
+      await get().updateDSAStats({
+        totalSolved,
+        [key]: diffSolved,
+        dailyActivity,
+      });
+    }
+
     await get().addXP(100);
   },
+
 
   // Sidebar
   sidebarCollapsed: false,

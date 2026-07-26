@@ -323,7 +323,9 @@ export default function CompaniesPage() {
                 <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
                   {(() => {
                     const matched = DSA_PROBLEMS.filter(p => p.companies.includes(pyqCompany));
-                    const list = matched.length >= 3 ? matched : [...matched, ...DSA_PROBLEMS.filter(p => !p.companies.includes(pyqCompany))].slice(0, 5);
+                    const other = DSA_PROBLEMS.filter(p => !p.companies.includes(pyqCompany));
+                    const list = matched.length >= 7 ? matched : [...matched, ...other].slice(0, 7);
+
                     return list.map(pyq => (
                       <div key={pyq.id} className="flex items-center justify-between p-3 rounded-xl bg-white/4 border border-white/8 hover:border-indigo-500/30 transition-all">
                         <div>
