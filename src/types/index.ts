@@ -23,6 +23,16 @@ export interface AuthState {
   isLoading: boolean;
 }
 
+export interface Coupon {
+  code: string;
+  discountPercent: number;
+  maxUses: number;
+  usesCount: number;
+  isActive: boolean;
+  expiryDate: string;
+}
+
+
 // DSA
 export interface DSAProblem {
   id: string;

@@ -8,8 +8,24 @@ import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
 
 export default function PricingPage() {
-  const { isProUser, upgradeToPro, cancelPro } = useStore();
+  const { isProUser, upgradeToPro, cancelPro, applyCoupon, activeCoupon } = useStore();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [promoInput, setPromoInput] = useState('');
+
+  const basePrice = billingCycle === 'monthly' ? 499 : 329;
+  const discountPercent = activeCoupon ? activeCoupon.discountPercent : 0;
+  const finalPrice = Math.round(basePrice * (1 - discountPercent / 100));
+
+  const handleApplyPromo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!promoInput.trim()) return;
+    const res = applyCoupon(promoInput);
+    if (res.success) {
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
+  };
 
   const handleTogglePro = () => {
     if (isProUser) {
@@ -17,9 +33,10 @@ export default function PricingPage() {
       toast.success('Subscription reverted to Free Plan');
     } else {
       upgradeToPro();
-      toast.success('🎉 Welcome to PlacementOS Pro ⚡! All features unlocked!');
+      toast.success(`🎉 Welcome to PlacementOS Pro ⚡! Unlocked at ₹${finalPrice}/mo!`);
     }
   };
+
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -107,12 +124,33 @@ export default function PricingPage() {
               <p className="text-xs text-indigo-300">Complete AI & Peer Placement Accelerator</p>
             </div>
 
-            <div className="flex items-baseline gap-1">
+            <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-white">
-                {billingCycle === 'monthly' ? '₹499' : '₹329'}
+                ₹{finalPrice}
               </span>
+              {activeCoupon && (
+                <span className="text-sm line-through text-slate-400">₹{basePrice}</span>
+              )}
               <span className="text-xs text-slate-400">/ month {billingCycle === 'yearly' && '(billed annually)'}</span>
+              {activeCoupon && (
+                <span className="badge badge-emerald text-[10px] ml-auto">⚡ {activeCoupon.discountPercent}% OFF</span>
+              )}
             </div>
+
+            {/* Promo Code Form */}
+            <form onSubmit={handleApplyPromo} className="flex gap-2 pt-1">
+              <input
+                type="text"
+                value={promoInput}
+                onChange={e => setPromoInput(e.target.value)}
+                placeholder="Promo Code (e.g. COLLEGE50)"
+                className="input-dark text-xs uppercase flex-1 py-2 px-3"
+              />
+              <button type="submit" className="px-3 py-2 rounded-xl bg-white/10 text-xs font-semibold text-white hover:bg-white/20 transition-all">
+                Apply
+              </button>
+            </form>
+
 
             <div className="space-y-2.5 text-xs text-slate-200 border-t border-white/8 pt-4 font-medium">
               <div className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Everything in Free Plan</div>

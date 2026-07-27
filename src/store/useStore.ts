@@ -3,7 +3,8 @@ import axios from 'axios';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabaseClient';
 import { playLevelUpSound } from '../lib/soundEffects';
-import type { User, UserProgress, Notification, ChatMessage, AgentStatus, DSAStats, Achievement, InterviewSession } from '../types';
+import type { User, UserProgress, Notification, ChatMessage, AgentStatus, DSAStats, Achievement, InterviewSession, Coupon } from '../types';
+
 
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -29,7 +30,17 @@ interface AppState {
   isProUser: boolean;
   upgradeToPro: () => void;
   cancelPro: () => void;
+  
+  // Coupons & Promo Codes
+  coupons: Coupon[];
+  activeCoupon: Coupon | null;
+  applyCoupon: (code: string) => { success: boolean; discountPercent: number; message: string };
+  addCoupon: (coupon: Coupon) => void;
+  toggleCoupon: (code: string) => void;
+  deleteCoupon: (code: string) => void;
+
   login: (email: string, password: string) => Promise<'ok' | 'invalid' | 'notfound' | 'unconfirmed' | string>;
+
   register: (data: any) => Promise<'ok' | 'exists'>;
   logout: () => void;
   setDemoMode: () => void;
@@ -152,6 +163,41 @@ export const useStore = create<AppState>((set, get) => ({
     localStorage.removeItem('placementos-pro');
     set({ isProUser: false });
   },
+
+  coupons: [
+    { code: 'COLLEGE50', discountPercent: 50, maxUses: 500, usesCount: 142, isActive: true, expiryDate: '2026-12-31' },
+    { code: 'PRO30', discountPercent: 30, maxUses: 200, usesCount: 88, isActive: true, expiryDate: '2026-12-31' },
+    { code: 'IITBOMBAY', discountPercent: 40, maxUses: 100, usesCount: 35, isActive: true, expiryDate: '2026-12-31' },
+  ],
+  activeCoupon: null,
+
+  applyCoupon: (code: string) => {
+    const clean = code.trim().toUpperCase();
+    const coupon = get().coupons.find(c => c.code.toUpperCase() === clean);
+    if (!coupon) return { success: false, discountPercent: 0, message: 'Invalid promo code' };
+    if (!coupon.isActive) return { success: false, discountPercent: 0, message: 'This promo code has expired' };
+    if (coupon.usesCount >= coupon.maxUses) return { success: false, discountPercent: 0, message: 'Promo code usage limit reached' };
+
+    set({ activeCoupon: coupon });
+    return { success: true, discountPercent: coupon.discountPercent, message: `🎉 ${coupon.discountPercent}% Discount Applied!` };
+  },
+
+  addCoupon: (coupon: Coupon) => {
+    set(state => ({ coupons: [coupon, ...state.coupons] }));
+  },
+
+  toggleCoupon: (code: string) => {
+    set(state => ({
+      coupons: state.coupons.map(c => c.code === code ? { ...c, isActive: !c.isActive } : c)
+    }));
+  },
+
+  deleteCoupon: (code: string) => {
+    set(state => ({
+      coupons: state.coupons.filter(c => c.code !== code)
+    }));
+  },
+
 
 
   login: async (email, password) => {

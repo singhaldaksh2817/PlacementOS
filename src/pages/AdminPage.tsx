@@ -54,9 +54,30 @@ const QUESTIONS_DATA = [
 ];
 
 export default function AdminPage() {
-  const { user, logout } = useStore();
+  const { user, logout, coupons, addCoupon, toggleCoupon, deleteCoupon } = useStore();
   const navigate = useNavigate();
-  const [adminTab, setAdminTab] = useState<'overview' | 'students' | 'broadcast' | 'questions' | 'drives' | 'system'>('overview');
+  const [adminTab, setAdminTab] = useState<'overview' | 'students' | 'broadcast' | 'coupons' | 'tpo' | 'questions' | 'drives' | 'system'>('overview');
+
+  // Coupon Creation Form
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState<number>(30);
+  const [couponMaxUses, setCouponMaxUses] = useState<number>(200);
+
+  const handleCreateCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponCode.trim()) return;
+    addCoupon({
+      code: couponCode.trim().toUpperCase(),
+      discountPercent: couponDiscount,
+      maxUses: couponMaxUses,
+      usesCount: 0,
+      isActive: true,
+      expiryDate: '2026-12-31',
+    });
+    toast.success(`Promo Code "${couponCode.toUpperCase()}" created with ${couponDiscount}% discount! 🎟️`);
+    setCouponCode('');
+  };
+
   
   const [students, setStudents] = useState<StudentUser[]>(INITIAL_STUDENTS);
   const [studentFilter, setStudentFilter] = useState<'all' | 'pro' | 'free' | 'flagged'>('all');
@@ -192,10 +213,13 @@ export default function AdminPage() {
             { id: 'overview', label: 'Platform Pulse & Analytics', icon: Activity },
             { id: 'students', label: 'Student Directory & Pro', icon: Users },
             { id: 'broadcast', label: 'Broadcast & Alerts 📢', icon: Megaphone },
+            { id: 'coupons', label: 'Promo Codes & Discounts 🎟️', icon: DollarSign },
+            { id: 'tpo', label: 'University Batch Reports 📊', icon: Award },
             { id: 'questions', label: 'Question Bank Manager', icon: BookOpen },
             { id: 'drives', label: 'Off-Campus Drives Board', icon: Briefcase },
             { id: 'system', label: 'AI Keys & System Config', icon: Cpu },
           ].map(tab => (
+
             <button
               key={tab.id}
               onClick={() => setAdminTab(tab.id as any)}
@@ -430,6 +454,130 @@ export default function AdminPage() {
               </form>
             </div>
           )}
+
+          {/* TAB: PROMO CODES & DISCOUNT MANAGER */}
+          {adminTab === 'coupons' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <form onSubmit={handleCreateCoupon} className="glass-card p-5 space-y-4 border border-purple-500/20">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <DollarSign size={16} className="text-purple-400" /> Create New Promo Code
+                </h3>
+                <div>
+                  <label className="text-xs text-slate-400 block mb-1">Promo Code Name</label>
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={e => setCouponCode(e.target.value)}
+                    className="input-dark text-xs uppercase"
+                    placeholder="e.g. EARLYBIRD50"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">Discount %</label>
+                    <input
+                      type="number"
+                      value={couponDiscount}
+                      onChange={e => setCouponDiscount(Number(e.target.value))}
+                      className="input-dark text-xs"
+                      min={5}
+                      max={100}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">Max Redemptions</label>
+                    <input
+                      type="number"
+                      value={couponMaxUses}
+                      onChange={e => setCouponMaxUses(Number(e.target.value))}
+                      className="input-dark text-xs"
+                    />
+                  </div>
+                </div>
+                <button type="submit" className="w-full btn-gradient py-2.5 rounded-xl text-xs font-bold shadow-lg">
+                  Publish Promo Code 🎟️
+                </button>
+              </form>
+
+              <div className="lg:col-span-2 glass-card p-5 space-y-3 border border-white/8">
+                <h3 className="text-sm font-bold text-white">Active Promo Codes & Coupons</h3>
+                <div className="space-y-2">
+                  {coupons.map(c => (
+                    <div key={c.code} className="p-3.5 rounded-xl bg-white/3 border border-white/5 flex items-center justify-between text-xs">
+                      <div>
+                        <div className="font-bold text-white flex items-center gap-2">
+                          <span className="font-mono text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">{c.code}</span>
+                          <span className="badge badge-emerald">{c.discountPercent}% OFF</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-1">
+                          Uses: {c.usesCount} / {c.maxUses} • Expires: {c.expiryDate}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggleCoupon(c.code)}
+                          className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                            c.isActive ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
+                          }`}
+                        >
+                          {c.isActive ? 'Active ⚡' : 'Paused ⏸️'}
+                        </button>
+                        <button
+                          onClick={() => deleteCoupon(c.code)}
+                          className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: UNIVERSITY BATCH REPORTS */}
+          {adminTab === 'tpo' && (
+            <div className="space-y-5">
+              <div className="glass-card p-6 flex items-center justify-between flex-wrap gap-4 border border-indigo-500/20">
+                <div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Award className="text-amber-400" /> College & University Batch Placement Reports
+                  </h3>
+                  <p className="text-xs text-slate-400">Institutional Placement Officer (TPO) analytics across partner engineering colleges</p>
+                </div>
+                <button
+                  onClick={() => window.print()}
+                  className="btn-gradient px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg"
+                >
+                  <BookOpen size={14} /> Export Official TPO Report PDF 📄
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { college: 'IIT Bombay', branch: 'Computer Science', students: 142, readiness: '94%', avgDSA: 285, target: 'Google, Microsoft' },
+                  { college: 'NIT Trichy', branch: 'Information Technology', students: 98, readiness: '88%', avgDSA: 210, target: 'Amazon, Adobe' },
+                  { college: 'IIIT Hyderabad', branch: 'ECE & CS', students: 120, readiness: '91%', avgDSA: 254, target: 'Uber, NVIDIA' },
+                ].map((item, i) => (
+                  <div key={i} className="glass-card p-5 border border-white/8 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white text-sm">{item.college}</span>
+                      <span className="badge badge-emerald">{item.readiness} Ready</span>
+                    </div>
+                    <p className="text-xs text-slate-400">{item.branch} • {item.students} Active Candidates</p>
+                    <div className="space-y-1 text-xs text-slate-300 border-t border-white/8 pt-2">
+                      <div className="flex justify-between"><span>Avg DSA Solved:</span> <span className="font-mono text-indigo-300 font-bold">{item.avgDSA} problems</span></div>
+                      <div className="flex justify-between"><span>Top Target:</span> <span className="text-amber-400 font-semibold">{item.target}</span></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
 
           {/* TAB 4: QUESTION BANK MANAGER */}
           {adminTab === 'questions' && (
