@@ -9,7 +9,9 @@ import {
 import { useStore } from '../store/useStore';
 import { MOCK_INTERVIEW_SESSIONS, INTERVIEW_QUESTIONS } from '../data/mockData';
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabaseClient';
+
 
 type Phase = 'setup' | 'interview' | 'result';
 
@@ -66,7 +68,7 @@ const FOLLOW_UPS: Record<string, string[]> = {
 };
 
 export default function InterviewPage() {
-  const { addXP, user, interviewSessions, addInterviewSession } = useStore();
+  const { addXP, removeXP, user, interviewSessions, addInterviewSession } = useStore();
   const [phase, setPhase] = useState<Phase>('setup');
   const [company, setCompany] = useState('Amazon');
   const [round, setRound] = useState('Behavioral');
@@ -80,6 +82,11 @@ export default function InterviewPage() {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+
+  // Candidate compulsory hardware verification state
+  const [candidateCamOn, setCandidateCamOn] = useState(false);
+  const [candidateMicOn, setCandidateMicOn] = useState(false);
+
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -164,6 +171,11 @@ export default function InterviewPage() {
   };
 
   const startInterview = () => {
+    if (!candidateCamOn || !candidateMicOn) {
+      toast.error('⚠️ Camera and Microphone are COMPULSORY for Candidate! Enable both to start interview.');
+      return;
+    }
+
     const qs = getQuestions();
     const firstQ = qs[0];
     const initialAiMsg = `Hello! I'm your interviewer from ${company}. Welcome to the ${round} round. Let's begin!\n\n${firstQ}`;
@@ -235,14 +247,46 @@ export default function InterviewPage() {
   };
 
   const finishInterview = async () => {
+    const candidateMsgs = messages.filter(m => m.role === 'candidate');
+    const totalWords = candidateMsgs.reduce((acc, m) => acc + m.content.trim().split(/\s+/).length, 0);
+    const avgWordsPerAnswer = candidateMsgs.length > 0 ? totalWords / candidateMsgs.length : 0;
+    
+    // Check technical keywords
+    const techKeywords = ['algorithm', 'o(n)', 'o(1)', 'hashmap', 'tree', 'graph', 'database', 'cache', 'star', 'scale', 'architecture', 'optimiz', 'complexity'];
+    const techMatches = candidateMsgs.reduce((acc, m) => {
+      const text = m.content.toLowerCase();
+      return acc + techKeywords.filter(k => text.includes(k)).length;
+    }, 0);
+
+    // Calculate real scores based on actual depth
+    let techScore = Math.min(100, Math.max(15, Math.round(techMatches * 18 + avgWordsPerAnswer * 1.5)));
+    let commScore = Math.min(100, Math.max(15, Math.round(avgWordsPerAnswer * 2.8)));
+    let confScore = Math.min(100, Math.max(20, Math.round(candidateMsgs.length * 20)));
+
+    if (candidateMsgs.length === 0 || totalWords < 8) {
+      techScore = 15;
+      commScore = 10;
+      confScore = 10;
+    }
+
     const finalScores = {
-      technical: Math.floor(60 + Math.random() * 30),
-      communication: Math.floor(65 + Math.random() * 25),
-      confidence: Math.floor(60 + Math.random() * 30),
+      technical: techScore,
+      communication: commScore,
+      confidence: confScore,
     };
-    const overall = Math.floor((finalScores.technical + finalScores.communication + finalScores.confidence) / 3);
+    const overall = Math.round((finalScores.technical + finalScores.communication + finalScores.confidence) / 3);
     setScores(finalScores);
-    addXP(300);
+
+    if (overall >= 65) {
+      const xpEarned = Math.round(overall * 3);
+      await addXP(xpEarned);
+      toast.success(`Outstanding Performance! ${overall}/100 score • +${xpEarned} XP earned! 🎉`);
+      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+    } else {
+      const xpPenalty = Math.round((65 - overall) * 3);
+      await removeXP(xpPenalty);
+      toast.error(`Poor Performance: ${overall}/100 score • ${xpPenalty} XP penalty deducted! Practice more ⚠️`);
+    }
 
     // Save session to store & Supabase
     const sessionObj = {
@@ -255,16 +299,18 @@ export default function InterviewPage() {
       confidenceScore: finalScores.confidence,
       technicalScore: finalScores.technical,
       communicationScore: finalScores.communication,
-      feedback: 'Good structure in your responses. Demonstrated clear problem-solving approach and technical baseline.',
+      feedback: overall >= 65 
+        ? 'Excellent depth in responses. Demonstrated strong problem-solving skills and technical keywords.'
+        : 'Answers were brief or lacked technical depth. Structure answers using the STAR method and explain trade-offs.',
       transcript: messages.map(m => ({ role: m.role, message: m.content, content: m.content, timestamp: m.timestamp })),
       improvements: ['Use STAR framework for behavioral questions', 'Add 1-2 quantifiable metrics (e.g. % improvement)', 'Maintain clear pacing'],
       status: 'completed' as const,
     };
 
     await addInterviewSession(sessionObj);
-    toast.success('Interview evaluation complete & session saved! 📊');
     setPhase('result');
   };
+
 
   if (phase === 'result') {
     const overall = Math.floor((scores.technical + scores.communication + scores.confidence) / 3);
@@ -507,7 +553,37 @@ export default function InterviewPage() {
                 </div>
               </div>
 
-              <div className="mt-5 p-4 rounded-xl bg-white/3 border border-white/6">
+              {/* Compulsory Hardware Verification Card */}
+              <div className="mt-5 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-300">⚠️ Candidate Requirements (COMPULSORY)</span>
+                  <span className="text-[10px] text-slate-400">Interviewer hardware is optional</span>
+                </div>
+                <p className="text-xs text-slate-300">Both Camera and Microphone MUST be enabled for the candidate before the interview can start.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setCandidateCamOn(!candidateCamOn); toast.success(candidateCamOn ? 'Camera disabled' : 'Candidate Camera Verified ✅'); }}
+                    className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                      candidateCamOn ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-red-500/20 border-red-500/40 text-red-300'
+                    }`}
+                  >
+                    {candidateCamOn ? '📷 Candidate Camera: ON ✅' : '📷 Candidate Camera: OFF ❌'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setCandidateMicOn(!candidateMicOn); toast.success(candidateMicOn ? 'Mic disabled' : 'Candidate Mic Verified ✅'); }}
+                    className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                      candidateMicOn ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-red-500/20 border-red-500/40 text-red-300'
+                    }`}
+                  >
+                    {candidateMicOn ? '🎙️ Candidate Mic: ON ✅' : '🎙️ Candidate Mic: OFF ❌'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-4 p-4 rounded-xl bg-white/3 border border-white/6">
                 <div className="text-xs text-slate-400 mb-3">Interview Preview</div>
                 <div className="flex gap-3 flex-wrap text-xs">
                   <span className="badge badge-indigo">{company}</span>
@@ -520,10 +596,16 @@ export default function InterviewPage() {
                 </div>
               </div>
 
-              <motion.button whileHover={{ scale: 1.02 }} onClick={startInterview}
-                className="btn-gradient w-full py-3.5 mt-4 flex items-center justify-center gap-2">
-                <MessageSquare size={16} /> Start Mock Interview
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                onClick={startInterview}
+                className={`w-full py-3.5 mt-4 flex items-center justify-center gap-2 font-bold text-sm rounded-xl transition-all ${
+                  candidateCamOn && candidateMicOn ? 'btn-gradient text-white cursor-pointer' : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/10'
+                }`}
+              >
+                <MessageSquare size={16} /> {candidateCamOn && candidateMicOn ? 'Start Mock Interview 🚀' : 'Enable Camera & Mic to Start'}
               </motion.button>
+
             </div>
 
             <div className="glass-card p-5 border-indigo-500/20 bg-indigo-500/5">

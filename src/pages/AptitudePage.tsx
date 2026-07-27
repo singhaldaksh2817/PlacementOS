@@ -19,7 +19,8 @@ const CATEGORIES = [
 ];
 
 export default function AptitudePage() {
-  const { addXP, progress, user } = useStore();
+  const { addXP, removeXP, progress, user } = useStore();
+
   const [phase, setPhase] = useState<TestPhase>('select');
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]);
   const [questions, setQuestions] = useState(APTITUDE_QUESTIONS);
@@ -88,14 +89,23 @@ export default function AptitudePage() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, []);
 
-  // ✅ Award XP only ONCE when result screen first appears (not on every render)
+  // ✅ Performance-Based XP: Award XP for good score (>= 50%) or Deduct XP for poor score (< 50%)
   useEffect(() => {
     if (phase !== 'result') return;
-    const { correct } = calculateScore();
-    const xpEarned = correct * 25;
-    if (xpEarned > 0) addXP(xpEarned);
+    const { correct, total, score } = calculateScore();
+    if (score >= 50) {
+      const xpEarned = correct * 30;
+      addXP(xpEarned);
+      toast.success(`Great performance! ${score}% score • +${xpEarned} XP earned! 🎉`);
+    } else {
+      const incorrect = total - correct;
+      const xpDeducted = incorrect * 15;
+      removeXP(xpDeducted);
+      toast.error(`Poor performance! ${score}% score • ${xpDeducted} XP penalty deducted! ⚠️`);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
+
 
   // Save aptitude result to Supabase when test completes
   useEffect(() => {

@@ -54,7 +54,8 @@ const PROMPT_CARDS = [
 ];
 
 export default function PeerInterviewPage() {
-  const { user, addXP } = useStore();
+  const { user, addXP, removeXP } = useStore();
+
   const [phase, setPhase] = useState<'lobby' | 'matching' | 'room' | 'summary'>('lobby');
   const [selectedCompany, setSelectedCompany] = useState('Google');
   const [selectedPartner, setSelectedPartner] = useState<PeerPartner | null>(null);
@@ -102,12 +103,23 @@ export default function PeerInterviewPage() {
     toast.success('Code executed live in peer session! 💻');
   };
 
-  const handleFinishInterview = () => {
+  const handleFinishInterview = async () => {
+    const codeLength = code.trim().length;
+    const hasOutput = output.includes('Passed') || output.includes('True') || output.includes('Executing');
+    const isGood = codeLength > 70 && hasOutput;
+
     setPhase('summary');
-    addXP(150);
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    toast.success('Peer Interview session completed! +150 XP earned! 🏆');
+
+    if (isGood) {
+      await addXP(200);
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      toast.success('Great Performance! Live solution verified • +200 XP earned! 🏆');
+    } else {
+      await removeXP(80);
+      toast.error('Poor Performance! Incomplete code submission • 80 XP penalty deducted! ⚠️');
+    }
   };
+
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -298,23 +310,41 @@ export default function PeerInterviewPage() {
                   {/* Audio/Video Controls */}
                   <div className="flex items-center justify-center gap-2 pt-1">
                     <button
-                      onClick={() => setCamOn(!camOn)}
+                      onClick={() => {
+                        if (role === 'candidate' && camOn) {
+                          toast.error('⚠️ Camera is COMPULSORY for Candidate during interview!');
+                          return;
+                        }
+                        setCamOn(!camOn);
+                      }}
                       className={`p-2 rounded-xl border text-xs font-semibold transition-all ${
                         camOn ? 'bg-white/10 text-white border-white/20' : 'bg-red-500/20 text-red-300 border-red-500/40'
                       }`}
+                      title={role === 'candidate' ? 'Camera is COMPULSORY for Candidate' : 'Toggle Camera'}
                     >
                       {camOn ? <Video size={14} /> : <VideoOff size={14} />}
                     </button>
 
                     <button
-                      onClick={() => setMicOn(!micOn)}
+                      onClick={() => {
+                        if (role === 'candidate' && micOn) {
+                          toast.error('⚠️ Microphone is COMPULSORY for Candidate during interview!');
+                          return;
+                        }
+                        setMicOn(!micOn);
+                      }}
                       className={`p-2 rounded-xl border text-xs font-semibold transition-all ${
                         micOn ? 'bg-white/10 text-white border-white/20' : 'bg-red-500/20 text-red-300 border-red-500/40'
                       }`}
+                      title={role === 'candidate' ? 'Mic is COMPULSORY for Candidate' : 'Toggle Mic'}
                     >
                       {micOn ? <Mic size={14} /> : <MicOff size={14} />}
                     </button>
                   </div>
+                  <div className="text-[10px] text-center text-slate-400">
+                    {role === 'candidate' ? '🔒 Candidate Hardware: Camera & Mic COMPULSORY' : '🔓 Interviewer Hardware: Camera & Mic Optional'}
+                  </div>
+
                 </div>
 
                 {/* Interviewer Prompt Card */}
