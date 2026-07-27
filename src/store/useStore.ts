@@ -26,12 +26,16 @@ interface AppState {
   user: User | null;
   isAuthenticated: boolean;
   token: string | null;
+  isProUser: boolean;
+  upgradeToPro: () => void;
+  cancelPro: () => void;
   login: (email: string, password: string) => Promise<'ok' | 'invalid' | 'notfound' | 'unconfirmed' | string>;
   register: (data: any) => Promise<'ok' | 'exists'>;
   logout: () => void;
   setDemoMode: () => void;
   updateUser: (updates: Partial<User>) => void;
   syncProfile: () => Promise<void>;
+
 
   // Progress
   progress: UserProgress;
@@ -130,10 +134,23 @@ function calculateRankFromXP(xp: number): number {
 
 
 export const useStore = create<AppState>((set, get) => ({
-  // Auth
+  // Auth & Subscription
   user: null,
   isAuthenticated: !!localStorage.getItem('placementos-token'),
   token: localStorage.getItem('placementos-token'),
+  isProUser: localStorage.getItem('placementos-pro') === 'true',
+
+  upgradeToPro: () => {
+    localStorage.setItem('placementos-pro', 'true');
+    set({ isProUser: true });
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+  },
+
+  cancelPro: () => {
+    localStorage.removeItem('placementos-pro');
+    set({ isProUser: false });
+  },
+
 
   login: async (email, password) => {
     try {

@@ -5,9 +5,9 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #04040e;
-  --bg-secondary: #080818;
-  --bg-tertiary: #0d0d22;
+  --bg-primary: #090a0f;
+  --bg-secondary: #0f111a;
+  --bg-tertiary: #141724;
   --bg-card: rgba(255, 255, 255, 0.04);
   --border-color: rgba(255, 255, 255, 0.08);
   --text-primary: #f0f0ff;
@@ -29,12 +29,13 @@ html {
 }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: #090a0f !important;
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
+
 
 /* ═══════════════════════════════════════════════════════════════════════════
    🌌 DYNAMIC BACKGROUND — COSMIC AURORA v3 (Ultra Vibrant)

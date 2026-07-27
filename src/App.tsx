@@ -28,6 +28,8 @@ const OASimulatorPage = lazy(() => import('./pages/OASimulatorPage'));
 const SystemDesignPage = lazy(() => import('./pages/SystemDesignPage'));
 const DrivesPage = lazy(() => import('./pages/DrivesPage'));
 const PeerInterviewPage = lazy(() => import('./pages/PeerInterviewPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
+
 
 
 
@@ -91,7 +93,9 @@ export default function App() {
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/chat" element={<MentorChatPage />} />
             <Route path="/orchestrator" element={<AgentOrchestrator />} />
+            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+
           </Route>
 
           {/* Admin-only route (no student sidebar) */}

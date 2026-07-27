@@ -12,6 +12,8 @@ import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabaseClient';
 import LiveWebcamFeed from '../components/ui/LiveWebcamFeed';
+import ProLockOverlay from '../components/ui/ProLockOverlay';
+
 
 
 
@@ -510,8 +512,13 @@ export default function InterviewPage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto relative">
+      <ProLockOverlay
+        featureName="AI Company Mock Interviewer"
+        description="Practice unlimited company-specific interview rounds with natural AI voice synthesis and real performance scoring."
+      />
       <TopBar title="Mock Interview" subtitle="AI-powered company-specific rounds" />
+
       <div className="p-6 space-y-5">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex gap-2">

@@ -9,6 +9,8 @@ import Editor from '@monaco-editor/react';
 import confetti from 'canvas-confetti';
 import toast from 'react-hot-toast';
 import { useStore } from '../store/useStore';
+import ProLockOverlay from '../components/ui/ProLockOverlay';
+
 
 interface OACompany {
   name: string;
@@ -256,8 +258,12 @@ export default function OASimulatorPage() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto min-h-screen pb-12">
-      <TopBar title="OA Test Simulator" subtitle="Company-specific timed assessments with proctoring" />
+    <div className="flex-1 overflow-y-auto relative">
+      <ProLockOverlay
+        featureName="Real Company OA Simulator"
+        description="Simulate Google, Amazon, and Microsoft online coding tests under strict timed conditions with tab-switch proctoring."
+      />
+      <TopBar title="Real Company OA Simulator ⚡" subtitle="Strict Timed Coding Assessments & Automated Proctoring" />
 
       <div className="p-6 max-w-6xl mx-auto space-y-6">
 

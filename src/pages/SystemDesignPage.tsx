@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
+import ProLockOverlay from '../components/ui/ProLockOverlay';
+
 
 interface CaseStudy {
   id: string;
@@ -145,8 +147,13 @@ export default function SystemDesignPage() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto relative">
+      <ProLockOverlay
+        featureName="Interactive System Design Studio"
+        description="Master Rate Limiter, Uber, TinyURL, and YouTube architectures with Back-of-the-Envelope Capacity Calculators."
+      />
       <TopBar title="System Design Studio 📐" subtitle="Master Tier-1 Distributed Architecture & System Capacity Estimations" />
+
 
       <div className="p-6 max-w-7xl mx-auto space-y-6">
         {/* Banner */}

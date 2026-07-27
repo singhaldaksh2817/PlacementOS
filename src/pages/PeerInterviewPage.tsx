@@ -11,6 +11,10 @@ import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 
 import LiveWebcamFeed from '../components/ui/LiveWebcamFeed';
+import ProLockOverlay from '../components/ui/ProLockOverlay';
+
+// ... interface ...
+
 
 interface PeerPartner {
   id: string;
@@ -169,8 +173,13 @@ export default function PeerInterviewPage() {
 
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto relative">
+      <ProLockOverlay
+        featureName="1-on-1 Peer Matchmaker"
+        description="Connect with online college batchmates in a shared Monaco IDE & WebRTC room with secret interviewer prompt cards."
+      />
       <TopBar title="Peer-to-Peer Mock Interview Matcher 🤝" subtitle="Live 1-on-1 Code Editor & WebRTC Video Practice with College Batchmates" />
+
 
       <div className="p-6 max-w-7xl mx-auto space-y-6">
         {/* Banner */}

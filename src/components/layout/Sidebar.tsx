@@ -23,9 +23,11 @@ const navItems = [
   { path: '/companies', icon: Building2, label: 'Companies' },
   { path: '/resume', icon: FileText, label: 'Resume' },
   { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-  { path: '/chat', icon: MessageSquare, label: 'AI Mentor' },
+  {path: '/chat', icon: MessageSquare, label: 'AI Mentor' },
   { path: '/orchestrator', icon: Cpu, label: 'Agent Engine' },
+  { path: '/pricing', icon: Zap, label: 'Upgrade Pro ⚡' },
 ];
+
 
 
 const bottomItems = [
