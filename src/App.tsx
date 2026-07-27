@@ -27,6 +27,8 @@ const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const OASimulatorPage = lazy(() => import('./pages/OASimulatorPage'));
 const SystemDesignPage = lazy(() => import('./pages/SystemDesignPage'));
 const DrivesPage = lazy(() => import('./pages/DrivesPage'));
+const PeerInterviewPage = lazy(() => import('./pages/PeerInterviewPage'));
+
 
 
 
@@ -76,6 +78,8 @@ export default function App() {
             <Route path="/dsa" element={<DSAPage />} />
             <Route path="/aptitude" element={<AptitudePage />} />
             <Route path="/interview" element={<InterviewPage />} />
+            <Route path="/peer-interview" element={<PeerInterviewPage />} />
+
             <Route path="/roadmap" element={<RoadmapPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/oa-simulator" element={<OASimulatorPage />} />

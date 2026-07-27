@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import TopBar from '../components/layout/TopBar';
 import {
   MessageSquare, Send, Mic, MicOff, BarChart3, Star,
-  ChevronRight, Building2, CheckCircle, Trophy, Brain
+  ChevronRight, Building2, CheckCircle, Trophy, Brain, Users
 } from 'lucide-react';
+
 import { useStore } from '../store/useStore';
 import { MOCK_INTERVIEW_SESSIONS, INTERVIEW_QUESTIONS } from '../data/mockData';
 import toast from 'react-hot-toast';
@@ -458,14 +459,24 @@ export default function InterviewPage() {
     <div className="flex-1 overflow-y-auto">
       <TopBar title="Mock Interview" subtitle="AI-powered company-specific rounds" />
       <div className="p-6 space-y-5">
-        <div className="flex gap-2">
-          {(['start', 'history'] as const).map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${activeTab === tab ? 'tab-active' : 'tab-inactive'}`}>
-              {tab === 'start' ? 'New Interview' : 'Past Sessions'}
-            </button>
-          ))}
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex gap-2">
+            {(['start', 'history'] as const).map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${activeTab === tab ? 'tab-active' : 'tab-inactive'}`}>
+                {tab === 'start' ? 'New Interview' : 'Past Sessions'}
+              </button>
+            ))}
+          </div>
+
+          <a
+            href="/peer-interview"
+            className="px-4 py-2 rounded-xl btn-gradient text-xs font-bold text-white flex items-center gap-1.5 shadow-md hover:scale-105 transition-all"
+          >
+            <Users size={14} /> Peer Mock Interview 🤝
+          </a>
         </div>
+
 
         {activeTab === 'start' && (
           <div className="max-w-2xl space-y-5">

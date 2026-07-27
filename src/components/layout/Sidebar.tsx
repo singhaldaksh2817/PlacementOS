@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Code2, Brain, MessageSquare, Map, Building2,
   FileText, BarChart3, Settings, ChevronLeft, ChevronRight,
-  Zap, Trophy, Flame, LogOut, Shield, Cpu, Layers, Briefcase
+  Zap, Trophy, Flame, LogOut, Shield, Cpu, Layers, Briefcase, Users
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 
@@ -14,7 +14,9 @@ const navItems = [
   { path: '/system-design', icon: Layers, label: 'System Design 📐' },
   { path: '/drives', icon: Briefcase, label: 'Job Drives 💼' },
   { path: '/aptitude', icon: Brain, label: 'Aptitude' },
-  { path: '/interview', icon: MessageSquare, label: 'Interview' },
+  { path: '/interview', icon: MessageSquare, label: 'AI Interview' },
+  { path: '/peer-interview', icon: Users, label: 'Peer Interview 🤝' },
+
   { path: '/roadmap', icon: Map, label: 'Roadmap' },
   { path: '/leaderboard', icon: Trophy, label: 'Leaderboard 🏆' },
   { path: '/oa-simulator', icon: Zap, label: 'OA Simulator ⚡' },
