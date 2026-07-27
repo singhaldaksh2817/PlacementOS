@@ -59,18 +59,79 @@ function CircularProgress({ value, size = 100, strokeWidth = 8, color = '#6366f1
   );
 }
 
-const DAILY_QUIZ = {
-  question: 'Which scheduling algorithm can cause the convoy effect in Operating Systems?',
-  options: ['FCFS (First Come First Served)', 'SJF (Shortest Job First)', 'Round Robin', 'Priority Scheduling'],
-  correct: 0,
-  explanation: 'FCFS can lead to the convoy effect where short processes wait behind a long CPU burst process.',
+const DAILY_QUIZ_POOL = [
+  {
+    question: 'Which scheduling algorithm can cause the convoy effect in Operating Systems?',
+    options: ['FCFS (First Come First Served)', 'SJF (Shortest Job First)', 'Round Robin', 'Priority Scheduling'],
+    correct: 0,
+    explanation: 'FCFS can lead to the convoy effect where short processes wait behind a long CPU burst process.',
+  },
+  {
+    question: 'In C++, what is the worst-case time complexity of std::sort?',
+    options: ['O(N log N)', 'O(N^2)', 'O(N)', 'O(1)'],
+    correct: 0,
+    explanation: 'std::sort uses IntroSort (Introspective Sort), guaranteeing O(N log N) worst-case time complexity.',
+  },
+  {
+    question: 'Which HTTP status code indicates "Too Many Requests" (Rate Limited)?',
+    options: ['429 Too Many Requests', '403 Forbidden', '503 Service Unavailable', '400 Bad Request'],
+    correct: 0,
+    explanation: '429 Too Many Requests indicates the user has sent too many requests in a given amount of time (rate limiting).',
+  },
+  {
+    question: 'In Database Systems, what does ACID stand for?',
+    options: [
+      'Atomicity, Consistency, Isolation, Durability',
+      'Accuracy, Concurrency, Integrity, Durability',
+      'Atomicity, Control, Isolation, Data',
+      'Access, Consistency, Index, Durability'
+    ],
+    correct: 0,
+    explanation: 'ACID guarantees database transaction reliability: Atomicity, Consistency, Isolation, and Durability.',
+  },
+  {
+    question: 'Which data structure is used to implement Breadth-First Search (BFS) in a Graph?',
+    options: ['Queue (FIFO)', 'Stack (LIFO)', 'Heap / Priority Queue', 'Binary Search Tree'],
+    correct: 0,
+    explanation: 'BFS explores graph nodes level-by-level using a Queue (First In First Out).',
+  },
+  {
+    question: 'What is the minimum number of comparisons needed to find the maximum in an unsorted array of size N?',
+    options: ['N - 1', 'N', 'N log N', 'N / 2'],
+    correct: 0,
+    explanation: 'Finding the max requires comparing each new element against the current max, taking exactly N - 1 comparisons.',
+  },
+];
+
+const getTodayQuizIndex = () => {
+  const todayStr = new Date().toISOString().split('T')[0];
+  let hash = 0;
+  for (let i = 0; i < todayStr.length; i++) {
+    hash = (hash << 5) - hash + todayStr.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash) % DAILY_QUIZ_POOL.length;
 };
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, progress, agentStatuses, dsaStats, addXP, removeXP } = useStore();
-  const [quizAnswered, setQuizAnswered] = useState<number | null>(null);
   
+  const todayQuizIndex = getTodayQuizIndex();
+  const todayQuiz = DAILY_QUIZ_POOL[todayQuizIndex];
+
+  // Persistent Daily Quiz Completion State
+  const todayDateKey = `placementos-quiz-${new Date().toDateString()}`;
+  let savedQuizAnswer: number | null = null;
+  try {
+    const raw = localStorage.getItem(todayDateKey);
+    if (raw !== null) savedQuizAnswer = parseInt(raw, 10);
+  } catch (e) {
+    console.warn('Failed to load quiz answer');
+  }
+
+  const [quizAnswered, setQuizAnswered] = useState<number | null>(savedQuizAnswer);
+
   let savedTasks = null;
   try {
     const raw = localStorage.getItem('dashboard-tasks-' + new Date().toDateString());
@@ -80,6 +141,7 @@ export default function Dashboard() {
   }
   const [isCertOpen, setIsCertOpen] = useState(false);
   const [tasks, setTasks] = useState<{id: string, title: string, category: string, status: string, estimatedTime: number, xpReward: number, priority: string}[]>(savedTasks ? savedTasks : INITIAL_TODAY_TASKS);
+
 
 
 
@@ -284,13 +346,13 @@ export default function Dashboard() {
                   <Zap size={16} className="text-amber-400" />
                   <h3 className="font-semibold text-white text-sm">Daily Rapid-Fire Quiz ⚡</h3>
                 </div>
-                <span className="badge badge-amber text-[10px]">+50 XP</span>
+                <span className="badge badge-amber text-[10px]">{quizAnswered !== null ? 'Answered' : '+50 XP'}</span>
               </div>
-              <p className="text-xs text-slate-300 mb-3">{DAILY_QUIZ.question}</p>
+              <p className="text-xs text-slate-300 mb-3">{todayQuiz.question}</p>
               <div className="space-y-1.5">
-                {DAILY_QUIZ.options.map((opt, i) => {
+                {todayQuiz.options.map((opt, i) => {
                   const isSelected = quizAnswered === i;
-                  const isCorrect = i === DAILY_QUIZ.correct;
+                  const isCorrect = i === todayQuiz.correct;
                   let btnBg = 'bg-white/4 border-white/8 text-slate-300 hover:bg-white/8';
                   if (quizAnswered !== null) {
                     if (isCorrect) btnBg = 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300';
@@ -302,13 +364,15 @@ export default function Dashboard() {
                       key={i}
                       disabled={quizAnswered !== null}
                       onClick={() => {
+                        if (quizAnswered !== null) return;
                         setQuizAnswered(i);
-                        if (i === DAILY_QUIZ.correct) {
+                        localStorage.setItem(todayDateKey, i.toString());
+                        if (i === todayQuiz.correct) {
                           addXP(50);
                           playTaskCompleteSound();
                           toast.success('Correct answer! +50 XP 🎯');
                         } else {
-                          toast.error('Incorrect. Check explanation!');
+                          toast.error('Incorrect. Check explanation below!');
                         }
                       }}
                       className={`w-full text-left px-3 py-2 rounded-xl text-xs border font-medium transition-all ${btnBg}`}
@@ -320,10 +384,11 @@ export default function Dashboard() {
               </div>
               {quizAnswered !== null && (
                 <div className="mt-3 text-[11px] text-slate-400 bg-white/3 p-2 rounded-lg border border-white/5">
-                  💡 <strong>Explanation:</strong> {DAILY_QUIZ.explanation}
+                  💡 <strong>Explanation:</strong> {todayQuiz.explanation}
                 </div>
               )}
             </motion.div>
+
 
             {/* Platform Stats Component */}
             <PlatformStats />
