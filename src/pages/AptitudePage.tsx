@@ -7,6 +7,8 @@ import { APTITUDE_QUESTIONS, LEADERBOARD } from '../data/mockData';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabaseClient';
+import LiveWebcamFeed from '../components/ui/LiveWebcamFeed';
+
 
 type TestPhase = 'select' | 'test' | 'result';
 
@@ -213,28 +215,34 @@ export default function AptitudePage() {
     return (
       <div className="flex-1 overflow-y-auto">
         <TopBar title={`${selectedCategory.label} Test`} subtitle={`Question ${currentQ + 1} of ${questions.length}`} />
-        <div className="p-6 max-w-3xl mx-auto space-y-4">
-          {/* Timer + Progress */}
-          <div className="glass-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="badge badge-indigo">Q {currentQ + 1}/{questions.length}</span>
-                <span className={`badge ${question.difficulty === 'Easy' ? 'badge-emerald' : question.difficulty === 'Medium' ? 'badge-amber' : 'badge-red'}`}>
-                  {question.difficulty}
-                </span>
-                <span className="text-xs text-slate-500">{question.subcategory}</span>
-              </div>
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${urgentTime ? 'bg-red-500/20 border border-red-500/40 animate-pulse' : 'bg-white/5 border border-white/10'}`}>
-                <Clock size={14} className={urgentTime ? 'text-red-400' : 'text-slate-400'} />
-                <span className={`font-mono font-bold text-sm ${urgentTime ? 'text-red-400' : 'text-white'}`}>{formatTime(timeLeft)}</span>
-              </div>
-
+        <div className="p-6 max-w-4xl mx-auto space-y-4">
+          {/* Live Proctoring & Timer Bar */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="w-48">
+              <LiveWebcamFeed active={true} label="Live AI Proctoring" />
             </div>
-            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-              <motion.div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                animate={{ width: `${progress_pct}%` }} />
+
+            <div className="flex-1 min-w-[240px]">
+              <div className="glass-card p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} className={urgentTime ? 'text-red-400 animate-bounce' : 'text-indigo-400'} />
+                    <span className={`font-mono font-bold text-sm ${urgentTime ? 'text-red-400' : 'text-white'}`}>
+                      {formatTime(timeLeft)}
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    Question {currentQ + 1} of {questions.length}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                    initial={{ width: 0 }} animate={{ width: `${progress_pct}%` }} transition={{ duration: 0.3 }} />
+                </div>
+              </div>
             </div>
           </div>
+
 
           {/* Question */}
           <div className="glass-card p-6">

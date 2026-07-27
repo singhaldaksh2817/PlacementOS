@@ -10,6 +10,8 @@ import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 
+import LiveWebcamFeed from '../components/ui/LiveWebcamFeed';
+
 interface PeerPartner {
   id: string;
   name: string;
@@ -19,6 +21,7 @@ interface PeerPartner {
   avatar: string;
   status: 'Online' | 'In Interview' | 'Matching';
 }
+
 
 const PEER_PARTNERS: PeerPartner[] = [
   { id: 'p1', name: 'Aarav Sharma', college: 'IIT Bombay', targetCompany: 'Google', rating: 4.9, avatar: '👨‍💻', status: 'Online' },
@@ -71,6 +74,17 @@ export default function PeerInterviewPage() {
   const [ratings, setRatings] = useState({ tech: 5, comm: 5, problem: 5 });
   const [feedbackNotes, setFeedbackNotes] = useState('');
 
+  // Dynamic session performance result
+  const [sessionResult, setSessionResult] = useState<{
+    techScore: number;
+    commScore: number;
+    problemScore: number;
+    overall: number;
+    xpChange: number;
+    passed: boolean;
+  }>({ techScore: 1.0, commScore: 1.0, problemScore: 1.0, overall: 1.0, xpChange: -80, passed: false });
+
+
   // 45 Min Timer
   useEffect(() => {
     if (phase !== 'room') return;
@@ -104,21 +118,54 @@ export default function PeerInterviewPage() {
   };
 
   const handleFinishInterview = async () => {
-    const codeLength = code.trim().length;
-    const hasOutput = output.includes('Passed') || output.includes('True') || output.includes('Executing');
-    const isGood = codeLength > 70 && hasOutput;
+    const candidateCode = code.replace(/#.*$/gm, '').trim();
+    const codeLength = candidateCode.length;
+    const ranCode = output.includes('Passed') || output.includes('Executing');
+    
+    let tech = 1.0;
+    let comm = 1.0;
+    let prob = 1.0;
+
+    if (codeLength > 90 && ranCode) {
+      tech = 4.8;
+      comm = 4.7;
+      prob = 4.9;
+    } else if (codeLength > 35) {
+      tech = 3.2;
+      comm = 3.0;
+      prob = 2.9;
+    } else {
+      // Candidate did nothing or almost nothing!
+      tech = 1.0;
+      comm = 1.2;
+      prob = 1.0;
+    }
+
+    const avgScore = Number(((tech + comm + prob) / 3).toFixed(1));
+    const isPassed = avgScore >= 3.5;
+    const xpDelta = isPassed ? 150 : -80;
+
+    setSessionResult({
+      techScore: Number(tech.toFixed(1)),
+      commScore: Number(comm.toFixed(1)),
+      problemScore: Number(prob.toFixed(1)),
+      overall: avgScore,
+      xpChange: xpDelta,
+      passed: isPassed
+    });
 
     setPhase('summary');
 
-    if (isGood) {
-      await addXP(200);
+    if (isPassed) {
+      await addXP(xpDelta);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      toast.success('Great Performance! Live solution verified • +200 XP earned! 🏆');
+      toast.success(`Great Performance! Score: ${avgScore}/5 • +${xpDelta} XP earned! 🏆`);
     } else {
-      await removeXP(80);
-      toast.error('Poor Performance! Incomplete code submission • 80 XP penalty deducted! ⚠️');
+      await removeXP(Math.abs(xpDelta));
+      toast.error(`Poor Performance! Incomplete solution • Score: ${avgScore}/5 • ${Math.abs(xpDelta)} XP penalty deducted! ⚠️`);
     }
   };
+
 
 
   return (
@@ -284,18 +331,9 @@ export default function PeerInterviewPage() {
                 <div className="glass-card p-4 space-y-3">
                   <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">WebRTC Peer Video Streams</h4>
                   <div className="grid grid-cols-2 gap-2">
-                    {/* Local Feed */}
-                    <div className="relative rounded-xl overflow-hidden bg-slate-900 border border-white/10 aspect-video flex items-center justify-center">
-                      {camOn ? (
-                        <div className="text-center">
-                          <div className="text-4xl">👨‍💻</div>
-                          <span className="text-[10px] text-slate-300 font-medium">You ({user?.name || 'Daksh'})</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-slate-500">Camera Off</span>
-                      )}
-                      <span className="absolute bottom-1 left-1.5 text-[9px] bg-black/60 px-1.5 py-0.5 rounded text-slate-300">You (Local)</span>
-                    </div>
+                    {/* Local Feed with Real WebRTC Camera */}
+                    <LiveWebcamFeed active={camOn} label={`You (${user?.name || 'Daksh'})`} />
+
 
                     {/* Remote Peer Feed */}
                     <div className="relative rounded-xl overflow-hidden bg-slate-900 border border-indigo-500/30 aspect-video flex items-center justify-center">
@@ -421,27 +459,41 @@ export default function PeerInterviewPage() {
 
         {/* Phase 4: Session Evaluation & XP Summary */}
         {phase === 'summary' && (
-          <div className="glass-card p-8 max-w-2xl mx-auto space-y-6 text-center border border-emerald-500/30">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl mx-auto border border-emerald-500/40">
-              🏆
+          <div className={`glass-card p-8 max-w-2xl mx-auto space-y-6 text-center border ${sessionResult.passed ? 'border-emerald-500/30' : 'border-red-500/30 bg-red-500/5'}`}>
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto border ${sessionResult.passed ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-red-500/20 text-red-400 border-red-500/40'}`}>
+              {sessionResult.passed ? '🏆' : '⚠️'}
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-white">Peer Interview Completed!</h2>
-              <p className="text-sm text-slate-300 mt-1">You earned <strong className="text-emerald-400">+150 XP</strong> for completing a 1-on-1 live mock interview session with {selectedPartner?.name || 'your peer partner'}!</p>
+              <h2 className="text-2xl font-bold text-white">
+                {sessionResult.passed ? 'Peer Interview Passed!' : 'Peer Interview Evaluation Completed'}
+              </h2>
+              <p className="text-sm text-slate-300 mt-1">
+                {sessionResult.passed ? (
+                  <>Performance result: <strong className="text-emerald-400">+{sessionResult.xpChange} XP</strong> earned!</>
+                ) : (
+                  <>Incomplete submission: <strong className="text-red-400">{sessionResult.xpChange} XP</strong> penalty deducted.</>
+                )}
+              </p>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 rounded-xl bg-white/4 border border-white/8">
-                <div className="text-xl font-bold text-white">4.9 / 5</div>
+                <div className={`text-xl font-bold ${sessionResult.techScore >= 3.5 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {sessionResult.techScore} / 5
+                </div>
                 <div className="text-xs text-slate-400">Technical Score</div>
               </div>
               <div className="p-3 rounded-xl bg-white/4 border border-white/8">
-                <div className="text-xl font-bold text-indigo-300">4.8 / 5</div>
+                <div className={`text-xl font-bold ${sessionResult.commScore >= 3.5 ? 'text-indigo-300' : 'text-red-400'}`}>
+                  {sessionResult.commScore} / 5
+                </div>
                 <div className="text-xs text-slate-400">Communication</div>
               </div>
               <div className="p-3 rounded-xl bg-white/4 border border-white/8">
-                <div className="text-xl font-bold text-emerald-300">5.0 / 5</div>
+                <div className={`text-xl font-bold ${sessionResult.problemScore >= 3.5 ? 'text-emerald-300' : 'text-red-400'}`}>
+                  {sessionResult.problemScore} / 5
+                </div>
                 <div className="text-xs text-slate-400">Problem Solving</div>
               </div>
             </div>
@@ -454,6 +506,7 @@ export default function PeerInterviewPage() {
             </button>
           </div>
         )}
+
       </div>
     </div>
   );

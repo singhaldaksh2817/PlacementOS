@@ -11,6 +11,8 @@ import { MOCK_INTERVIEW_SESSIONS, INTERVIEW_QUESTIONS } from '../data/mockData';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabaseClient';
+import LiveWebcamFeed from '../components/ui/LiveWebcamFeed';
+
 
 
 type Phase = 'setup' | 'interview' | 'result';
@@ -378,8 +380,14 @@ export default function InterviewPage() {
     return (
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar title={`${company} — ${round} Round`} subtitle="AI Mock Interview in Progress" />
-        <div className="flex-1 flex flex-col overflow-hidden p-4 max-w-3xl mx-auto w-full">
+        <div className="flex-1 flex flex-col overflow-hidden p-4 max-w-4xl mx-auto w-full">
+          {/* Candidate Live Webcam Feed Bar */}
+          <div className="flex justify-end mb-2">
+            <LiveWebcamFeed active={candidateCamOn} label="Candidate Live Feed" className="w-48 shadow-lg border border-indigo-500/30" />
+          </div>
+
           {/* Messages */}
+
           <div className="flex-1 overflow-y-auto space-y-4 mb-4 p-2">
             {messages.map((msg) => (
               <motion.div key={msg.id}
