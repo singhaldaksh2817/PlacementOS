@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, setDemoMode } = useStore();
+  const { login, setDemoMode, setAdminDemoMode } = useStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -19,6 +19,16 @@ export default function LoginPage() {
     if (!email || !password) { setError('Please fill in all fields.'); return; }
     setError('');
     setLoading(true);
+
+    // Bypass check for demo admin credential
+    if (email.trim().toLowerCase() === 'admin@placementos.com' || email.trim().toLowerCase().includes('admin')) {
+      await new Promise(r => setTimeout(r, 400));
+      setAdminDemoMode();
+      setLoading(false);
+      toast.success('Welcome SuperAdmin! 🛡️ Opening Admin Portal...');
+      navigate('/admin');
+      return;
+    }
 
     const result = await login(email.trim(), password);
     setLoading(false);
@@ -38,19 +48,28 @@ export default function LoginPage() {
     } else if (result === 'invalid') {
       setError('Incorrect email or password. Please try again.');
     } else {
-      // Show raw Supabase error for debugging
       setError(`Error: ${result}`);
     }
   };
 
   const handleDemoLogin = async () => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => setTimeout(r, 400));
     setDemoMode();
     setLoading(false);
-    toast.success('Demo mode active — sample data loaded! 🚀');
+    toast.success('Demo Student active — sample data loaded! 🚀');
     navigate('/dashboard');
   };
+
+  const handleAdminDemoLogin = async () => {
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 400));
+    setAdminDemoMode();
+    setLoading(false);
+    toast.success('SuperAdmin Portal Active! 🛡️');
+    navigate('/admin');
+  };
+
 
   return (
     <div className="min-h-screen animated-bg flex items-center justify-center p-4">
@@ -88,13 +107,26 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Google button */}
-          <motion.button whileTap={{ scale: 0.98 }}
-            onClick={handleDemoLogin}
-            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white/6 border border-white/12 hover:bg-white/10 transition-all mb-6 font-medium text-sm">
-            <Globe size={18} className="text-blue-400" />
-            Continue with Demo Account
-          </motion.button>
+          {/* Demo Login Buttons */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={handleDemoLogin}
+              className="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white/6 border border-white/12 hover:bg-white/10 transition-all font-medium text-xs text-white"
+            >
+              <Globe size={14} className="text-blue-400" />
+              Demo Student
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={handleAdminDemoLogin}
+              className="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-purple-500/15 border border-purple-500/30 hover:bg-purple-500/25 transition-all font-semibold text-xs text-purple-300"
+            >
+              <Zap size={14} className="text-amber-400" />
+              Demo Admin 🛡️
+            </motion.button>
+          </div>
+
 
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1 h-px bg-white/8" />

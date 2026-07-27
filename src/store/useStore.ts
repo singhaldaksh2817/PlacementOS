@@ -33,7 +33,9 @@ interface AppState {
   register: (data: any) => Promise<'ok' | 'exists'>;
   logout: () => void;
   setDemoMode: () => void;
+  setAdminDemoMode: () => void;
   updateUser: (updates: Partial<User>) => void;
+
   syncProfile: () => Promise<void>;
 
 
@@ -304,6 +306,30 @@ export const useStore = create<AppState>((set, get) => ({
       },
     });
   },
+
+  setAdminDemoMode: () => {
+    set({
+      isAuthenticated: true,
+      token: 'demo-token',
+      user: {
+        id: 'admin-user-001',
+        name: 'PlacementOS Administrator',
+        email: 'admin@placementos.com',
+        role: 'admin',
+        college: 'PlacementOS Central HQ',
+        branch: 'System Operations',
+        year: 4,
+        cgpa: 10.0,
+        targetCompanies: ['All Companies'],
+        dailyHours: 8,
+        placementMonth: 'Forever Active',
+        githubUsername: 'placementos',
+        leetcodeUsername: 'placementos',
+        createdAt: new Date().toISOString(),
+      },
+    });
+  },
+
 
 
   updateUser: async (updates) => {
