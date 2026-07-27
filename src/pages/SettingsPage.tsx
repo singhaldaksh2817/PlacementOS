@@ -77,9 +77,28 @@ export default function SettingsPage() {
     }));
   };
 
+  function extractUsername(input: string, platform: 'github' | 'leetcode'): string {
+    if (!input) return '';
+    let str = input.trim();
+    str = str.replace(/\/$/, '');
+    if (platform === 'github') {
+      const match = str.match(/(?:github\.com\/|^)([a-zA-Z0-9_-]+)$/i);
+      if (match) return match[1];
+    } else if (platform === 'leetcode') {
+      const match = str.match(/(?:leetcode\.com\/(?:u\/)?|^)([a-zA-Z0-9_-]+)$/i);
+      if (match) return match[1];
+    }
+    return str.split('/').filter(Boolean).pop() || str;
+  }
+
   const handleSave = async () => {
     setSaving(true);
     try {
+      const cleanGithub = extractUsername(profile.githubUsername, 'github');
+      const cleanLeetcode = extractUsername(profile.leetcodeUsername, 'leetcode');
+
+      setProfile(p => ({ ...p, githubUsername: cleanGithub, leetcodeUsername: cleanLeetcode }));
+
       await updateUser({
         name: profile.name,
         college: profile.college,
@@ -89,11 +108,11 @@ export default function SettingsPage() {
         targetCompanies: profile.targetCompanies,
         dailyHours: parseInt(profile.dailyHours),
         placementMonth: profile.placementMonth,
-        githubUsername: profile.githubUsername,
-        leetcodeUsername: profile.leetcodeUsername,
+        githubUsername: cleanGithub,
+        leetcodeUsername: cleanLeetcode,
       });
       setSaved(true);
-      toast.success('Settings saved! ✅');
+      toast.success('Settings saved successfully! ✅');
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       toast.error('Failed to save settings. Please try again.');
@@ -101,6 +120,7 @@ export default function SettingsPage() {
       setSaving(false);
     }
   };
+
 
   const handleLogout = () => {
     logout();

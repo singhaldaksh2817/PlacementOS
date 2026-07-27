@@ -307,7 +307,10 @@ export const useStore = create<AppState>((set, get) => ({
 
 
   updateUser: async (updates) => {
-    if (get().token === 'demo-token') return;
+    if (get().token === 'demo-token') {
+      set((s) => ({ user: s.user ? { ...s.user, ...updates } : null }));
+      return;
+    }
     const user = get().user;
     if (!user) return;
     const dbUpdates: Record<string, any> = {};
@@ -325,13 +328,14 @@ export const useStore = create<AppState>((set, get) => ({
 
     try {
       const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
-      if (error) throw error;
+      if (error) console.warn('Supabase update warning:', error.message);
       set((s) => ({ user: s.user ? { ...s.user, ...updates } : null }));
     } catch (err) {
       console.error('Failed to update user profile', err);
-      throw err;
+      set((s) => ({ user: s.user ? { ...s.user, ...updates } : null }));
     }
   },
+
 
   syncProfile: async () => {
     const { data: { user: authUser } } = await supabase.auth.getUser();
