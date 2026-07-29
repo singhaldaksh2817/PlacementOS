@@ -212,7 +212,7 @@ export default function Dashboard() {
                   Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, {user?.name?.split(' ')[0] || 'Student'}!
                 </h2>
               </div>
-              <p className="text-slate-400 text-sm">You're on a <span className="text-orange-400 font-semibold">{progress.streak}-day streak</span> 🔥 Keep it going!</p>
+              <p className="text-slate-400 text-sm">You're on a <span className="text-orange-400 font-semibold">{progress.streak}-day streak</span> 🔥 Keep it going</p>
               <div className="flex items-center gap-3 mt-3 flex-wrap">
                 <span className="badge badge-indigo">Level {progress.level}</span>
                 <span className="badge badge-amber">#{progress.rank} Rank</span>
