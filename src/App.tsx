@@ -31,6 +31,8 @@ const PeerInterviewPage = lazy(() => import('./pages/PeerInterviewPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const DSADuelPage = lazy(() => import('./pages/DSADuelPage'));
 const ResumeJDTailorPage = lazy(() => import('./pages/ResumeJDTailorPage'));
+const CompanyPYQPage = lazy(() => import('./pages/CompanyPYQPage'));
+
 
 
 
@@ -86,8 +88,10 @@ export default function App() {
             <Route path="/peer-interview" element={<PeerInterviewPage />} />
             <Route path="/duel" element={<DSADuelPage />} />
             <Route path="/jd-tailor" element={<ResumeJDTailorPage />} />
+            <Route path="/pyq-tracker" element={<CompanyPYQPage />} />
 
             <Route path="/roadmap" element={<RoadmapPage />} />
+
 
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/oa-simulator" element={<OASimulatorPage />} />

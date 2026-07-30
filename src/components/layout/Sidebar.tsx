@@ -18,6 +18,8 @@ const navItems = [
   { path: '/peer-interview', icon: Users, label: 'Peer Interview 🤝' },
   { path: '/duel', icon: Swords, label: 'Speed Duel ⚔️' },
   { path: '/jd-tailor', icon: Sparkles, label: 'JD Resume Tailor 📄' },
+  { path: '/pyq-tracker', icon: Trophy, label: 'Company PYQs 🏆' },
+
 
 
   { path: '/roadmap', icon: Map, label: 'Roadmap' },
