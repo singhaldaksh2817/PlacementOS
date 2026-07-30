@@ -33,11 +33,17 @@ const DUEL_PROBLEMS = [
     timeLimitSeconds: 900, // 15 mins
     description: 'Given n non-negative integers a1, a2, ..., an , where each represents a point at coordinate (i, ai). Find two lines, which together with x-axis forms a container, such that the container contains the most water.',
     starterCode: {
-      python: `def maxArea(height: list[int]) -> int:\n    # Write your O(N) two-pointer solution here\n    left, right = 0, len(height) - 1\n    ans = 0\n    while left < right:\n        ans = max(ans, min(height[left], height[right]) * (right - left))\n        if height[left] < height[right]:\n            left += 1\n        else:\n            right -= 1\n    return ans\n\nprint(maxArea([1,8,6,2,5,4,8,3,7])) # Expected: 49`,
-      javascript: `function maxArea(height) {\n    let left = 0, right = height.length - 1, ans = 0;\n    while (left < right) {\n        ans = Math.max(ans, Math.min(height[left], height[right]) * (right - left));\n        if (height[left] < height[right]) left++;\n        else right--;\n    }\n    return ans;\n}\nconsole.log(maxArea([1,8,6,2,5,4,8,3,7])); // Expected: 49`,
+      python: `def maxArea(height: list[int]) -> int:\n    # Write your O(N) two-pointer solution here\n    pass\n`,
+      javascript: `function maxArea(height) {\n    // Write your O(N) two-pointer solution here\n    return 0;\n}\n`,
     },
     totalTestcases: 10,
-    expectedOutput: '49',
+    testcases: [
+      { input: '[1,8,6,2,5,4,8,3,7]', expected: 49 },
+      { input: '[1,1]', expected: 1 },
+      { input: '[4,3,2,1,4]', expected: 16 },
+      { input: '[1,2,1]', expected: 2 },
+      { input: '[2,3,4,5,18,17,6]', expected: 17 },
+    ],
   },
   {
     id: 'dp2',
@@ -46,11 +52,14 @@ const DUEL_PROBLEMS = [
     timeLimitSeconds: 900,
     description: 'Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.',
     starterCode: {
-      python: `def trap(height: list[int]) -> int:\n    # Write your solution here\n    return 6\n\nprint(trap([0,1,0,2,1,0,1,3,2,1,2,1])) # Expected: 6`,
-      javascript: `function trap(height) {\n    return 6;\n}\nconsole.log(trap([0,1,0,2,1,0,1,3,2,1,2,1])); // Expected: 6`,
+      python: `def trap(height: list[int]) -> int:\n    # Write your solution here\n    pass\n`,
+      javascript: `function trap(height) {\n    // Write your solution here\n    return 0;\n}\n`,
     },
-    totalTestcases: 12,
-    expectedOutput: '6',
+    totalTestcases: 10,
+    testcases: [
+      { input: '[0,1,0,2,1,0,1,3,2,1,2,1]', expected: 6 },
+      { input: '[4,2,0,3,2,5]', expected: 9 },
+    ],
   },
 ];
 
@@ -88,7 +97,6 @@ export default function DSADuelPage() {
       setPhase('matched');
       toast.success(`Opponent Found: ${randOpp.name} (${randOpp.college})! ⚔️`);
 
-      // 3 second countdown
       let count = 3;
       setMatchCountdown(3);
       const cdInterval = setInterval(() => {
@@ -108,7 +116,6 @@ export default function DSADuelPage() {
     setUserPassedCases(0);
     setOpponentPassedCases(0);
 
-    // Duel Timer
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
@@ -120,10 +127,9 @@ export default function DSADuelPage() {
         return prev - 1;
       });
 
-      // Simulating opponent progress
-      if (Math.random() > 0.75) {
+      if (Math.random() > 0.82) {
         setOpponentPassedCases(prev => {
-          const next = Math.min(problem.totalTestcases, prev + 1);
+          const next = Math.min(problem.totalTestcases, prev + 2);
           if (next === problem.totalTestcases) {
             endDuel('opponent_won');
           }
@@ -137,6 +143,76 @@ export default function DSADuelPage() {
     setRunning(true);
     setOutput('');
 
+    // Append deterministic test suite wrapper
+    let codeToRun = code;
+    if (problem.id === 'dp1') {
+      if (language === 'python') {
+        codeToRun += `\n
+try:
+    tc_list = [
+        ([1,8,6,2,5,4,8,3,7], 49),
+        ([1,1], 1),
+        ([4,3,2,1,4], 16),
+        ([1,2,1], 2),
+        ([2,3,4,5,18,17,6], 17)
+    ]
+    passed = sum(1 for tc, exp in tc_list if maxArea(tc) == exp)
+    print(f"DUEL_TEST_RESULT:{passed}/{len(tc_list)}")
+except Exception as e:
+    print(f"DUEL_TEST_RESULT:0/5 (Error: {e})")
+`;
+      } else {
+        codeToRun += `\n
+try {
+    const tc_list = [
+        [[1,8,6,2,5,4,8,3,7], 49],
+        [[1,1], 1],
+        [[4,3,2,1,4], 16],
+        [[1,2,1], 2],
+        [[2,3,4,5,18,17,6], 17]
+    ];
+    let passed = 0;
+    for (const [tc, exp] of tc_list) {
+        if (maxArea(tc) === exp) passed++;
+    }
+    console.log("DUEL_TEST_RESULT:" + passed + "/" + tc_list.length);
+} catch(e) {
+    console.log("DUEL_TEST_RESULT:0/5 (Error: " + e.message + ")");
+}
+`;
+      }
+    } else {
+      if (language === 'python') {
+        codeToRun += `\n
+try:
+    tc_list = [
+        ([0,1,0,2,1,0,1,3,2,1,2,1], 6),
+        ([4,2,0,3,2,5], 9)
+    ]
+    passed = sum(1 for tc, exp in tc_list if trap(tc) == exp)
+    print(f"DUEL_TEST_RESULT:{passed * 5}/10")
+except Exception as e:
+    print(f"DUEL_TEST_RESULT:0/10")
+`;
+      } else {
+        codeToRun += `\n
+try {
+    const tc_list = [
+        [[0,1,0,2,1,0,1,3,2,1,2,1], 6],
+        [[4,2,0,3,2,5], 9]
+    ];
+    let passed = 0;
+    for (const [tc, exp] of tc_list) {
+        if (trap(tc) === exp) passed++;
+    }
+    console.log("DUEL_TEST_RESULT:" + (passed * 5) + "/10");
+} catch(e) {
+    console.log("DUEL_TEST_RESULT:0/10");
+}
+`;
+      }
+    }
+
     try {
       const res = await fetch('https://emkc.org/api/v2/piston/execute', {
         method: 'POST',
@@ -144,20 +220,32 @@ export default function DSADuelPage() {
         body: JSON.stringify({
           language: language === 'python' ? 'python' : 'javascript',
           version: language === 'python' ? '3.10.0' : '18.15.0',
-          files: [{ content: code }],
+          files: [{ content: codeToRun }],
         }),
       });
       const data = await res.json();
       const stdout = (data?.run?.stdout || '').trim();
-      setOutput(stdout || data?.run?.stderr || 'No output');
+      const stderr = (data?.run?.stderr || '').trim();
+      
+      setOutput(stdout || stderr || 'Execution finished.');
 
-      if (stdout.includes(problem.expectedOutput)) {
-        setUserPassedCases(problem.totalTestcases);
-        endDuel('user_won');
+      // Deterministic testcase parsing
+      const match = stdout.match(/DUEL_TEST_RESULT:(\d+)\/(\d+)/);
+      if (match) {
+        const passedCount = parseInt(match[1], 10);
+        const totalCount = parseInt(match[2], 10);
+        const normalizedPassed = Math.round((passedCount / totalCount) * problem.totalTestcases);
+        setUserPassedCases(normalizedPassed);
+
+        if (passedCount === totalCount) {
+          setUserPassedCases(problem.totalTestcases);
+          endDuel('user_won');
+        } else {
+          toast.error(`Solution passed ${normalizedPassed}/${problem.totalTestcases} testcases. Fix your logic!`);
+        }
       } else {
-        const passed = Math.floor(Math.random() * (problem.totalTestcases - 2)) + 2;
-        setUserPassedCases(passed);
-        toast.error(`Passed ${passed}/${problem.totalTestcases} testcases. Fix your solution!`);
+        setUserPassedCases(0);
+        toast.error('Syntax error or solution failed testcases.');
       }
     } catch (err) {
       setOutput('❌ Code Execution Error');
@@ -165,6 +253,7 @@ export default function DSADuelPage() {
       setRunning(false);
     }
   };
+
 
   const endDuel = (result: 'user_won' | 'opponent_won' | 'timeout') => {
     if (timerRef.current) clearInterval(timerRef.current);
