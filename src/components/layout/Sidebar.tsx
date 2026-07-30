@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Code2, Brain, MessageSquare, Map, Building2,
   FileText, BarChart3, Settings, ChevronLeft, ChevronRight,
-  Zap, Trophy, Flame, LogOut, Shield, Cpu, Layers, Briefcase, Users
+  Zap, Trophy, Flame, LogOut, Shield, Cpu, Layers, Briefcase, Users, Swords, Sparkles
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 
@@ -16,6 +16,9 @@ const navItems = [
   { path: '/aptitude', icon: Brain, label: 'Aptitude' },
   { path: '/interview', icon: MessageSquare, label: 'AI Interview' },
   { path: '/peer-interview', icon: Users, label: 'Peer Interview 🤝' },
+  { path: '/duel', icon: Swords, label: 'Speed Duel ⚔️' },
+  { path: '/jd-tailor', icon: Sparkles, label: 'JD Resume Tailor 📄' },
+
 
   { path: '/roadmap', icon: Map, label: 'Roadmap' },
   { path: '/leaderboard', icon: Trophy, label: 'Leaderboard 🏆' },

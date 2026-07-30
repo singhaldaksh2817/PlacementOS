@@ -29,6 +29,9 @@ const SystemDesignPage = lazy(() => import('./pages/SystemDesignPage'));
 const DrivesPage = lazy(() => import('./pages/DrivesPage'));
 const PeerInterviewPage = lazy(() => import('./pages/PeerInterviewPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
+const DSADuelPage = lazy(() => import('./pages/DSADuelPage'));
+const ResumeJDTailorPage = lazy(() => import('./pages/ResumeJDTailorPage'));
+
 
 
 
@@ -81,8 +84,11 @@ export default function App() {
             <Route path="/aptitude" element={<AptitudePage />} />
             <Route path="/interview" element={<InterviewPage />} />
             <Route path="/peer-interview" element={<PeerInterviewPage />} />
+            <Route path="/duel" element={<DSADuelPage />} />
+            <Route path="/jd-tailor" element={<ResumeJDTailorPage />} />
 
             <Route path="/roadmap" element={<RoadmapPage />} />
+
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/oa-simulator" element={<OASimulatorPage />} />
             <Route path="/system-design" element={<SystemDesignPage />} />
