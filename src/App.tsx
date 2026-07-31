@@ -2,8 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { useStore } from './store/useStore';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import DynamicBackground from './components/DynamicBackground';
+import { Toaster } from 'react-hot-toast';
 
 import AppLayout from './components/layout/AppLayout';
+
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -64,6 +66,8 @@ export default function App() {
     <BrowserRouter>
       {/* 🌌 Global dynamic background — renders behind everything */}
       <DynamicBackground />
+      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#13151f', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' } }} />
+
 
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center relative">
