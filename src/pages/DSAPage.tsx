@@ -144,11 +144,31 @@ export default function DSAPage() {
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
   const location = useLocation();
 
+  const ensureArray = (val: any) => {
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
   useEffect(() => {
     supabase.from('dsa_problems').select('*').then(({ data, error }) => {
       let loaded = [];
       if (data && data.length > 0) {
-        loaded = data.map(p => ({ ...p, solved: false, expectedOutput: p.expected_output }));
+        loaded = data.map(p => ({
+          ...p,
+          solved: false,
+          expectedOutput: p.expected_output || p.expectedOutput,
+          examples: ensureArray(p.examples),
+          constraints: ensureArray(p.constraints),
+          companies: ensureArray(p.companies),
+        }));
       } else {
         import('../data/mockData').then(m => {
           setProblems(m.DSA_PROBLEMS);
@@ -487,13 +507,13 @@ export default function DSAPage() {
                 </div>
 
                 {/* Examples */}
-                {selectedProblem.examples && selectedProblem.examples.length > 0 && (
+                {Array.isArray(selectedProblem.examples) && selectedProblem.examples.length > 0 && (
                   <div className="space-y-2 pt-1">
                     {selectedProblem.examples.map((ex: any, idx: number) => (
                       <div key={idx} className="p-3 rounded-xl bg-white/3 border border-white/5 text-xs font-mono">
                         <div className="text-indigo-300 font-semibold mb-1">Example {idx + 1}:</div>
-                        <div><span className="text-slate-400">Input:</span> <span className="text-white">{ex.input}</span></div>
-                        <div><span className="text-slate-400">Output:</span> <span className="text-emerald-300">{ex.output}</span></div>
+                        <div><span className="text-slate-400">Input:</span> <span className="text-white">{ex.input || JSON.stringify(ex)}</span></div>
+                        {ex.output && <div><span className="text-slate-400">Output:</span> <span className="text-emerald-300">{ex.output}</span></div>}
                         {ex.explanation && <div className="text-slate-400 mt-1 font-sans"><span className="text-slate-400 font-semibold">Explanation:</span> {ex.explanation}</div>}
                       </div>
                     ))}
@@ -504,11 +524,11 @@ export default function DSAPage() {
                 <div className="flex items-center justify-between text-xs text-slate-400 pt-1 flex-wrap gap-2 border-t border-white/5">
                   <div className="flex items-center gap-2">
                     <span className="text-slate-400 font-semibold">Target Companies:</span>
-                    {selectedProblem.companies?.map((c: string) => (
+                    {Array.isArray(selectedProblem.companies) && selectedProblem.companies.slice(0, 3).map((c: string) => (
                       <span key={c} className="text-xs text-indigo-200 bg-white/5 px-2 py-0.5 rounded border border-white/10">{c}</span>
                     ))}
                   </div>
-                  {selectedProblem.constraints && (
+                  {Array.isArray(selectedProblem.constraints) && selectedProblem.constraints.length > 0 && (
                     <div className="text-xs text-slate-400">
                       <span className="font-semibold text-slate-400">Constraints:</span> {selectedProblem.constraints.join(' • ')}
                     </div>
