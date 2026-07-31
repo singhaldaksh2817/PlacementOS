@@ -9,6 +9,8 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid
 } from 'recharts';
 import { useStore } from '../store/useStore';
+import { supabase } from '../lib/supabaseClient';
+import { runFullSeed } from '../lib/seedSupabase';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -56,7 +58,80 @@ const QUESTIONS_DATA = [
 export default function AdminPage() {
   const { user, logout, coupons, addCoupon, toggleCoupon, deleteCoupon } = useStore();
   const navigate = useNavigate();
-  const [adminTab, setAdminTab] = useState<'overview' | 'students' | 'broadcast' | 'coupons' | 'tpo' | 'questions' | 'drives' | 'system'>('overview');
+  const [adminTab, setAdminTab] = useState<'overview' | 'students' | 'broadcast' | 'coupons' | 'tpo' | 'questions' | 'drives' | 'system' | 'placements' | 'feedback' | 'drivescheduler' | 'activitymap'>('overview');
+
+  const [placements, setPlacements] = useState<any[]>([]);
+  const [pName, setPName] = useState('');
+  const [pEmail, setPEmail] = useState('');
+  const [pCompany, setPCompany] = useState('');
+  const [pRole, setPRole] = useState('');
+  const [pCTC, setPCTC] = useState('');
+  const [pDate, setPDate] = useState('');
+
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [fFilter, setFFilter] = useState('All');
+
+  const [schedDrives, setSchedDrives] = useState<any[]>([]);
+  const [sdComp, setSDComp] = useState('');
+  const [sdRole, setSDRole] = useState('');
+  const [sdDate, setSDDate] = useState('');
+  const [sdSlots, setSDSlots] = useState('');
+  const [sdDesc, setSDDesc] = useState('');
+
+  useEffect(() => {
+    supabase.from('placements').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+      if (data) setPlacements(data);
+    });
+    supabase.from('feedback').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+      if (data) setFeedbacks(data);
+    });
+    supabase.from('scheduled_drives').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+      if (data) setSchedDrives(data);
+    });
+  }, []);
+
+  const handleAddPlacement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { data, error } = await supabase.from('placements').insert({ student_name: pName, student_email: pEmail, company: pCompany, role: pRole, ctc: pCTC, offer_date: pDate }).select();
+    if (!error && data) {
+      setPlacements([data[0], ...placements]);
+      setPName(''); setPEmail(''); setPCompany(''); setPRole(''); setPCTC(''); setPDate('');
+      toast.success('Placement added!');
+    }
+  };
+
+  const exportPlacementsCSV = () => {
+    if (placements.length === 0) return;
+    const headers = ['Student Name', 'Email', 'Company', 'Role', 'CTC', 'Offer Date'];
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(',') + '\\n'
+      + placements.map(p => `${p.student_name},${p.student_email},${p.company},${p.role},${p.ctc},${p.offer_date}`).join('\\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "placements.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const updateFeedbackStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from('feedback').update({ status }).eq('id', id);
+    if (!error) {
+      setFeedbacks(feedbacks.map(f => f.id === id ? { ...f, status } : f));
+      toast.success('Status updated');
+    }
+  };
+
+  const handleAddDriveSched = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { data, error } = await supabase.from('scheduled_drives').insert({ company: sdComp, role: sdRole, drive_date: sdDate, slots: parseInt(sdSlots), description: sdDesc, status: 'upcoming' }).select();
+    if (!error && data) {
+      setSchedDrives([data[0], ...schedDrives]);
+      setSDComp(''); setSDRole(''); setSDDate(''); setSDSlots(''); setSDDesc('');
+      toast.success('Drive scheduled!');
+    }
+  };
 
   // Coupon Creation Form
   const [couponCode, setCouponCode] = useState('');
@@ -197,6 +272,20 @@ export default function AdminPage() {
             100% System Health
           </div>
           <button
+            onClick={async () => {
+              toast.loading('Seeding Supabase database with DSA problems & companies...', { id: 'seed' });
+              try {
+                await runFullSeed();
+                toast.success('Database seeded successfully! 🎉', { id: 'seed' });
+              } catch (err: any) {
+                toast.error('Seeding failed: ' + err.message, { id: 'seed' });
+              }
+            }}
+            className="flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 transition-all font-semibold"
+          >
+            <Database size={14} /> Seed Database ⚡
+          </button>
+          <button
             onClick={handleAdminLogout}
             className="flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-500/25 transition-all font-semibold"
           >
@@ -218,6 +307,10 @@ export default function AdminPage() {
             { id: 'questions', label: 'Question Bank Manager', icon: BookOpen },
             { id: 'drives', label: 'Off-Campus Drives Board', icon: Briefcase },
             { id: 'system', label: 'AI Keys & System Config', icon: Cpu },
+            { id: 'placements', label: 'Placements 🎓', icon: Award },
+            { id: 'feedback', label: 'Feedback Inbox 🚨', icon: Bell },
+            { id: 'drivescheduler', label: 'Drive Scheduler 📅', icon: Briefcase },
+            { id: 'activitymap', label: 'Activity Map 📊', icon: Activity },
           ].map(tab => (
 
             <button
@@ -727,6 +820,204 @@ export default function AdminPage() {
                   <div className="text-slate-400">[HTTP 02:12:14] GET /api/admin/metrics 200 OK - 14ms</div>
                   <div className="text-purple-400">[AUTH 02:13:00] 🛡️ SuperAdmin session validated for admin@placementos.com</div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: PLACEMENTS */}
+          {adminTab === 'placements' && (
+            <div className="space-y-6">
+              <div className="glass-card p-6 border border-white/8 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Award className="text-amber-400" /> {placements.length} Students Placed
+                  </h3>
+                </div>
+                <button
+                  onClick={exportPlacementsCSV}
+                  className="btn-gradient px-4 py-2 rounded-xl text-xs font-bold"
+                >
+                  Export CSV 📄
+                </button>
+              </div>
+
+              <form onSubmit={handleAddPlacement} className="glass-card p-5 grid grid-cols-1 md:grid-cols-3 gap-4 border border-indigo-500/20">
+                <h3 className="md:col-span-3 text-sm font-bold text-white">Log New Placement</h3>
+                <div>
+                  <label className="text-xs text-slate-400 block mb-1">Student Name</label>
+                  <input type="text" value={pName} onChange={e => setPName(e.target.value)} className="input-dark text-xs w-full" required />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 block mb-1">Email</label>
+                  <input type="email" value={pEmail} onChange={e => setPEmail(e.target.value)} className="input-dark text-xs w-full" required />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 block mb-1">Company</label>
+                  <input type="text" value={pCompany} onChange={e => setPCompany(e.target.value)} className="input-dark text-xs w-full" required />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 block mb-1">Role</label>
+                  <input type="text" value={pRole} onChange={e => setPRole(e.target.value)} className="input-dark text-xs w-full" required />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 block mb-1">CTC</label>
+                  <input type="text" value={pCTC} onChange={e => setPCTC(e.target.value)} className="input-dark text-xs w-full" placeholder="e.g. 15 LPA" required />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 block mb-1">Offer Date</label>
+                  <input type="date" value={pDate} onChange={e => setPDate(e.target.value)} className="input-dark text-xs w-full" required />
+                </div>
+                <div className="md:col-span-3">
+                  <button type="submit" className="w-full btn-gradient py-2 rounded-xl text-xs font-bold">
+                    Add Placement 🎓
+                  </button>
+                </div>
+              </form>
+
+              <div className="glass-card overflow-hidden border border-white/8">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-white/4 text-slate-400 uppercase tracking-wider font-semibold border-b border-white/8">
+                    <tr>
+                      <th className="p-3.5">Student</th>
+                      <th className="p-3.5">Company & Role</th>
+                      <th className="p-3.5">CTC</th>
+                      <th className="p-3.5">Offer Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {placements.map((p, i) => (
+                      <tr key={i} className="hover:bg-white/2">
+                        <td className="p-3.5">
+                          <div className="font-bold text-white">{p.student_name}</div>
+                          <div className="text-[10px] text-slate-400">{p.student_email}</div>
+                        </td>
+                        <td className="p-3.5">
+                          <div className="font-bold text-white">{p.company}</div>
+                          <div className="text-[10px] text-slate-400">{p.role}</div>
+                        </td>
+                        <td className="p-3.5 font-bold text-emerald-400">{p.ctc}</td>
+                        <td className="p-3.5 text-slate-400">{new Date(p.offer_date).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: FEEDBACK INBOX */}
+          {adminTab === 'feedback' && (
+            <div className="space-y-6">
+              <div className="flex gap-2">
+                {['All', 'Open', 'In Progress', 'Resolved'].map(status => (
+                  <button
+                    key={status}
+                    onClick={() => setFFilter(status)}
+                    className={`px-4 py-2 rounded-xl text-xs font-semibold ${fFilter === status ? 'bg-indigo-600 text-white' : 'bg-white/5 text-slate-400'}`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {feedbacks.filter(f => fFilter === 'All' || f.status === fFilter).map(f => (
+                  <div key={f.id} className="glass-card p-5 border border-white/8 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex gap-2">
+                        <span className={`badge ${f.type === 'Bug' ? 'badge-red' : f.type === 'Suggestion' ? 'badge-indigo' : 'badge-emerald'}`}>
+                          {f.type}
+                        </span>
+                        <span className="text-[10px] text-slate-500">{new Date(f.created_at).toLocaleString()}</span>
+                      </div>
+                      <select
+                        value={f.status || 'Open'}
+                        onChange={e => updateFeedbackStatus(f.id, e.target.value)}
+                        className="input-dark text-[10px] py-1 px-2 h-auto"
+                      >
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                      </select>
+                    </div>
+                    <p className="text-sm text-white whitespace-pre-wrap">{f.message}</p>
+                    <div className="text-xs text-slate-400 border-t border-white/5 pt-2">
+                      From: <span className="font-semibold text-slate-300">{f.user_name}</span> ({f.user_email})
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: DRIVE SCHEDULER */}
+          {adminTab === 'drivescheduler' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <form onSubmit={handleAddDriveSched} className="glass-card p-5 space-y-4 border border-purple-500/20">
+                <h3 className="text-sm font-bold text-white">Schedule Drive</h3>
+                <div><label className="text-xs text-slate-400 mb-1 block">Company</label><input type="text" value={sdComp} onChange={e => setSDComp(e.target.value)} className="input-dark text-xs w-full" required /></div>
+                <div><label className="text-xs text-slate-400 mb-1 block">Role</label><input type="text" value={sdRole} onChange={e => setSDRole(e.target.value)} className="input-dark text-xs w-full" required /></div>
+                <div><label className="text-xs text-slate-400 mb-1 block">Drive Date</label><input type="date" value={sdDate} onChange={e => setSDDate(e.target.value)} className="input-dark text-xs w-full" required /></div>
+                <div><label className="text-xs text-slate-400 mb-1 block">Slots Available</label><input type="number" value={sdSlots} onChange={e => setSDSlots(e.target.value)} className="input-dark text-xs w-full" required /></div>
+                <div><label className="text-xs text-slate-400 mb-1 block">Description</label><textarea value={sdDesc} onChange={e => setSDDesc(e.target.value)} className="input-dark text-xs w-full h-20" required /></div>
+                <button type="submit" className="w-full btn-gradient py-2 rounded-xl text-xs font-bold">Schedule Drive 📅</button>
+              </form>
+              <div className="lg:col-span-2 space-y-3">
+                {schedDrives.map((d, i) => (
+                  <div key={i} className="glass-card p-4 border border-white/8 flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-white text-sm">{d.company} <span className="text-xs font-normal text-slate-400">— {d.role}</span></div>
+                      <div className="text-xs text-slate-400 mt-1">{new Date(d.drive_date).toLocaleDateString()} • {d.slots} Slots</div>
+                      <div className="text-xs text-slate-300 mt-2">{d.description}</div>
+                    </div>
+                    <span className="badge badge-indigo">{d.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: ACTIVITY MAP */}
+          {adminTab === 'activitymap' && (
+            <div className="glass-card p-6 border border-white/8 space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold text-white">Platform Activity Heatmap (7 Days)</h3>
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  Low <div className="w-4 h-4 bg-indigo-500/10 rounded" />
+                  <div className="w-4 h-4 bg-indigo-500/40 rounded" />
+                  <div className="w-4 h-4 bg-indigo-500/70 rounded" />
+                  <div className="w-4 h-4 bg-indigo-500 rounded" /> High
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <div className="flex">
+                  <div className="w-10"></div>
+                  <div className="flex-1 flex justify-between text-[10px] text-slate-500 px-2 pb-2">
+                    <span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>12am</span>
+                  </div>
+                </div>
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, dIdx) => (
+                  <div key={day} className="flex items-center gap-2 mb-1">
+                    <div className="w-8 text-[10px] text-slate-400 text-right">{day}</div>
+                    <div className="flex-1 flex gap-1">
+                      {Array.from({ length: 24 }).map((_, hIdx) => {
+                        // Peak hours logic (20-23 higher)
+                        let val = Math.random();
+                        if (hIdx >= 20 && hIdx <= 23) val += 0.5;
+                        if (hIdx >= 0 && hIdx <= 5) val *= 0.3; // low activity at night
+                        val = Math.min(1, Math.max(0.1, val));
+                        
+                        return (
+                          <div 
+                            key={hIdx} 
+                            className="flex-1 aspect-square rounded-sm bg-indigo-500"
+                            style={{ opacity: val }}
+                            title={`${day} ${hIdx}:00 - Activity: ${Math.round(val * 100)}`}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

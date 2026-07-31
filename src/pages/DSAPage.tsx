@@ -8,7 +8,7 @@ import {
   Filter, Search, ChevronRight, Target, AlertTriangle, Brain
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { DSA_PROBLEMS } from '../data/mockData';
+import { supabase } from '../lib/supabaseClient';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
@@ -126,7 +126,7 @@ class Solution {
 
 
 export default function DSAPage() {
-  const { dsaStats, addXP, submitDSASolution } = useStore();
+  const { user, dsaStats, addXP, submitDSASolution } = useStore();
   const [activeTab, setActiveTab] = useState<'problems' | 'ide' | 'analytics'>('problems');
   const [selectedTopic, setSelectedTopic] = useState('All');
   const [difficultyFilter, setDifficultyFilter] = useState('All');
@@ -139,26 +139,48 @@ export default function DSAPage() {
   const [currentHint, setCurrentHint] = useState('');
   const [hintLevel, setHintLevel] = useState(1);
   const [hintLoading, setHintLoading] = useState(false);
-  const [selectedProblem, setSelectedProblem] = useState(DSA_PROBLEMS[0]);
+  const [problems, setProblems] = useState<any[]>([]);
+  const [loadingProblems, setLoadingProblems] = useState(true);
+  const [selectedProblem, setSelectedProblem] = useState<any>(null);
   const location = useLocation();
 
   useEffect(() => {
+    supabase.from('dsa_problems').select('*').then(({ data, error }) => {
+      let loaded = [];
+      if (data && data.length > 0) {
+        loaded = data.map(p => ({ ...p, solved: false, expectedOutput: p.expected_output }));
+      } else {
+        import('../data/mockData').then(m => {
+          setProblems(m.DSA_PROBLEMS);
+          setLoadingProblems(false);
+        });
+        return;
+      }
+      setProblems(loaded);
+      setLoadingProblems(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!problems || problems.length === 0) return;
     if (location.state?.openIde) {
       setActiveTab('ide');
     }
     if (location.state?.problemId) {
-      const match = DSA_PROBLEMS.find(p => p.id === location.state.problemId);
+      const match = problems.find(p => p.id === location.state.problemId);
       if (match) setSelectedProblem(match);
     } else if (location.state?.problemTitle) {
       const searchTitle = location.state.problemTitle.toLowerCase();
-      const match = DSA_PROBLEMS.find(p =>
+      const match = problems.find(p =>
         p.title.toLowerCase() === searchTitle ||
         p.title.toLowerCase().includes(searchTitle) ||
         searchTitle.includes(p.title.toLowerCase())
       );
       if (match) setSelectedProblem(match);
+    } else if (!selectedProblem) {
+      setSelectedProblem(problems[0]);
     }
-  }, [location.state]);
+  }, [location.state, problems]);
 
   // Update code editor skeleton when selectedProblem or language changes
   useEffect(() => {
@@ -185,7 +207,7 @@ export default function DSAPage() {
 
 
 
-  const filteredProblems = DSA_PROBLEMS.filter(p => {
+  const filteredProblems = problems.filter(p => {
     const matchTopic = selectedTopic === 'All' || p.topic === selectedTopic;
     const matchDiff = difficultyFilter === 'All' || p.difficulty === difficultyFilter;
     const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -271,6 +293,8 @@ export default function DSAPage() {
     setOutput(testReport);
     setConsoleTab('output');
     await submitDSASolution(selectedProblem.id, selectedProblem.difficulty as 'Easy' | 'Medium' | 'Hard');
+    const userId = user?.id || 'demo-user';
+    supabase.from('dsa_user_progress').upsert({ user_id: userId, problem_id: selectedProblem.id }).then(() => {});
     toast.success(`All Testcases Passed! +100 XP 🎉`);
     confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
   };
@@ -390,7 +414,20 @@ export default function DSAPage() {
 
               {/* Problem List */}
               <div className="space-y-2">
-                {filteredProblems.map((problem, i) => (
+                {loadingProblems ? (
+                  Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="glass-card p-4 h-[72px] animate-pulse flex items-center gap-4">
+                      <div className="w-5 h-5 rounded-full bg-white/10" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-white/10 rounded w-1/3" />
+                        <div className="flex gap-2">
+                          <div className="h-3 bg-white/10 rounded w-12" />
+                          <div className="h-3 bg-white/10 rounded w-16" />
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : filteredProblems.map((problem, i) => (
                   <motion.div key={problem.id}
                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}
                     onClick={() => { setSelectedProblem(problem); setActiveTab('ide'); }}
@@ -406,7 +443,7 @@ export default function DSAPage() {
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <span className={`badge text-xs ${difficultyColor[problem.difficulty]}`}>{problem.difficulty}</span>
                         <span className="text-xs text-slate-500">{problem.topic}</span>
-                        {problem.companies.slice(0,3).map(c => (
+                        {problem.companies?.slice(0,3).map((c: string) => (
                           <span key={c} className="text-xs text-slate-600 bg-white/3 px-2 py-0.5 rounded">{c}</span>
                         ))}
                       </div>
@@ -419,7 +456,7 @@ export default function DSAPage() {
           )}
 
           {/* IDE Tab */}
-          {activeTab === 'ide' && (
+          {activeTab === 'ide' && selectedProblem && (
             <motion.div key="ide" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="space-y-4">
               <div className="glass-card p-5 space-y-3">
@@ -428,6 +465,11 @@ export default function DSAPage() {
                     <span className={`badge text-xs ${difficultyColor[selectedProblem.difficulty]}`}>{selectedProblem.difficulty}</span>
                     <h2 className="font-heading font-bold text-white text-lg">{selectedProblem.title}</h2>
                     <span className="text-xs text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">{selectedProblem.topic}</span>
+                    {selectedProblem.platform_url && (
+                      <a href={selectedProblem.platform_url} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline flex items-center gap-1">
+                        Open on LeetCode →
+                      </a>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     {(['python', 'javascript', 'cpp', 'java'] as const).map(lang => (

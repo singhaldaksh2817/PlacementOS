@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TopBar from '../components/layout/TopBar';
 import {
   Building2, Search, Filter, ChevronDown, ChevronUp,
   MapPin, Clock, Target, CheckCircle, AlertCircle,
-  TrendingUp, Star, ExternalLink, Calendar, BookOpen, X, Code2
+  TrendingUp, Star, ExternalLink, Calendar, BookOpen, X, Code2, Globe, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
 import { COMPANIES, DSA_PROBLEMS } from '../data/mockData';
-
+import { supabase } from '../lib/supabaseClient';
 import type { Company } from '../types';
+
 
 const tierColors: Record<string, string> = {
   S: 'text-amber-400 bg-amber-500/15 border-amber-500/25',
@@ -223,9 +223,35 @@ export default function CompaniesPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pyqCompany, setPyqCompany] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'readiness' | 'probability' | 'ctc'>('readiness');
+  const [companies, setCompanies] = useState<Company[]>(COMPANIES);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [usingLiveData, setUsingLiveData] = useState(false);
 
+  // Fetch companies from Supabase; fall back to mockData if table empty
+  useEffect(() => {
+    supabase.from('companies').select('*').then(({ data, error }) => {
+      if (!error && data && data.length > 0) {
+        // Map snake_case columns back to camelCase for compatibility
+        const mapped: Company[] = data.map((c: any) => ({
+          id: c.id, name: c.name, logo: c.logo || c.name?.[0] || 'C', tier: c.tier || 'A',
+          domain: c.domain || 'Technology', ctcRange: c.ctc_range || '15-25 LPA',
+          roles: c.roles || [], oaPattern: c.oa_pattern || ['Coding', 'Aptitude'],
+          interviewRounds: c.interview_rounds || ['OA', 'Technical', 'HR'],
+          topicsRequired: c.topics_required || [],
+          recentlyAsked: c.recently_asked || [], hiringStatus: c.hiring_status || 'upcoming',
+          driveDate: c.drive_date, deadline: c.deadline,
+          locations: c.locations || [], eligibilityCGPA: c.eligibility_cgpa || 6.5,
+          tips: c.tips || [], skills: c.skills || [],
+          projectsPreferred: [], readinessScore: 60, probability: 50,
+        }));
+        setCompanies(mapped);
+        setUsingLiveData(true);
+      }
+      setLoadingCompanies(false);
+    });
+  }, []);
 
-  const filtered = COMPANIES
+  const filtered = companies
     .filter(c => {
       const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
                           c.domain.toLowerCase().includes(search.toLowerCase());
@@ -238,6 +264,7 @@ export default function CompaniesPage() {
       if (sortBy === 'probability') return (b.probability || 0) - (a.probability || 0);
       return 0;
     });
+
 
   return (
     <div className="flex-1 overflow-y-auto">

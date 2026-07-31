@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Sidebar from './Sidebar';
 import { useStore } from '../../store/useStore';
+import FeedbackButton from '../ui/FeedbackButton';
 
 export default function AppLayout() {
   const { syncProfile, syncNotifications } = useStore();
@@ -19,6 +20,8 @@ export default function AppLayout() {
       <main className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Outlet />
       </main>
+
+      <FeedbackButton />
 
       <Toaster
         position="bottom-right"

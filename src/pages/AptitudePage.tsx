@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TopBar from '../components/layout/TopBar';
-import { Brain, Clock, CheckCircle, XCircle, ChevronRight, BarChart3, Trophy, Target, AlertTriangle } from 'lucide-react';
+import { Brain, Clock, CheckCircle, XCircle, ChevronRight, BarChart3, Trophy, Target, AlertTriangle, Loader2, Globe } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { APTITUDE_QUESTIONS, LEADERBOARD } from '../data/mockData';
+import { fetchAptitudeQuestions, type OpenTDBQuestion } from '../lib/openTDB';
+import { LEADERBOARD } from '../data/mockData';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabaseClient';
 import LiveWebcamFeed from '../components/ui/LiveWebcamFeed';
+
 
 
 type TestPhase = 'select' | 'test' | 'result';
@@ -25,7 +27,8 @@ export default function AptitudePage() {
 
   const [phase, setPhase] = useState<TestPhase>('select');
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]);
-  const [questions, setQuestions] = useState(APTITUDE_QUESTIONS);
+  const [questions, setQuestions] = useState<OpenTDBQuestion[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [currentQ, setCurrentQ] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
@@ -34,12 +37,27 @@ export default function AptitudePage() {
   const [activeTab, setActiveTab] = useState<'select' | 'leaderboard' | 'history'>('select');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const startTest = (cat: typeof CATEGORIES[0]) => {
+
+  const startTest = async (cat: typeof CATEGORIES[0]) => {
     setSelectedCategory(cat);
-    const qs = cat.id === 'all' ? APTITUDE_QUESTIONS : APTITUDE_QUESTIONS.filter(q => q.category === cat.id);
-    const shuffled = [...qs].sort(() => Math.random() - 0.5).slice(0, cat.questions);
-    setQuestions(shuffled);
-    setAnswers(new Array(shuffled.length).fill(null));
+    setLoadingQuestions(true);
+
+    // Map difficulty based on category
+    const diffMap: Record<string, 'easy' | 'medium' | 'hard'> = {
+      all: 'medium', Quantitative: 'medium', Logical: 'medium', CS: 'easy', Verbal: 'easy'
+    };
+
+    const fetched = await fetchAptitudeQuestions(cat.id, cat.questions, diffMap[cat.id] || 'medium');
+    setLoadingQuestions(false);
+
+    if (!fetched.length) {
+      toast.error('Could not fetch questions. Using offline bank.');
+    } else {
+      toast.success(`✅ ${fetched.length} fresh ${cat.label} questions loaded from OpenTDB!`);
+    }
+
+    setQuestions(fetched);
+    setAnswers(new Array(fetched.length).fill(null));
     setCurrentQ(0);
     setSelected(null);
     setTimeLeft(cat.time * 60);
@@ -57,6 +75,7 @@ export default function AptitudePage() {
       });
     }, 1000);
   };
+
 
   const handleSelect = (idx: number) => {
     if (selected !== null) return;
@@ -310,8 +329,24 @@ export default function AptitudePage() {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <TopBar title="Aptitude" subtitle="AI-powered adaptive testing" />
+      <TopBar title="Aptitude" subtitle="Live questions powered by OpenTDB" />
+      {/* Loading overlay while fetching questions */}
+      <AnimatePresence>
+        {loadingQuestions && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm"
+          >
+            <Loader2 size={48} className="text-indigo-400 animate-spin mb-4" />
+            <p className="text-white font-semibold text-lg">Fetching live questions...</p>
+            <p className="text-slate-400 text-sm mt-1 flex items-center gap-1.5">
+              <Globe size={14} /> Powered by OpenTDB — fresh every session
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="p-6 space-y-5">
+
         <div className="flex gap-2 mb-2">
           {(['select', 'leaderboard', 'history'] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
@@ -327,11 +362,15 @@ export default function AptitudePage() {
               <div className="flex items-center gap-3">
                 <Brain size={20} className="text-indigo-400" />
                 <div>
-                  <div className="font-semibold text-white">AI Adaptive Testing</div>
-                  <div className="text-sm text-slate-400">Difficulty adjusts based on your performance. Below 50% → easier. Above 80% → harder.</div>
+                  <div className="font-semibold text-white">AI Adaptive Testing — Live Questions</div>
+                  <div className="text-sm text-slate-400">Questions fetched fresh from <span className="text-indigo-400 font-medium">OpenTDB</span> every session. Difficulty adjusts based on your performance.</div>
                 </div>
+                <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full whitespace-nowrap">
+                  <Globe size={11} /> Live API
+                </span>
               </div>
             </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {CATEGORIES.map((cat, i) => (
