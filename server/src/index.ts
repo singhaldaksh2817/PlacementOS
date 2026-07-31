@@ -213,6 +213,70 @@ app.get('/api/admin/users', async (req: express.Request, res: express.Response):
   }
 });
 
+// ADMIN SEED SUPABASE DATABASE
+app.post('/api/admin/seed-supabase', async (req: express.Request, res: express.Response): Promise<any> => {
+  const seedDSA = [
+    { id: 'p1', title: 'Two Sum', difficulty: 'Easy', topic: 'Arrays', companies: ['Google', 'Amazon', 'Microsoft'], description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/two-sum' },
+    { id: 'p2', title: 'Add Two Numbers', difficulty: 'Medium', topic: 'Linked List', companies: ['Amazon', 'Microsoft'], description: 'Add two numbers represented as linked lists.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/add-two-numbers' },
+    { id: 'p3', title: 'Longest Substring Without Repeating Characters', difficulty: 'Medium', topic: 'Strings', companies: ['Google', 'Adobe'], description: 'Find length of longest substring without repeating characters.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/longest-substring-without-repeating-characters' },
+    { id: 'p4', title: 'Median of Two Sorted Arrays', difficulty: 'Hard', topic: 'Binary Search', companies: ['Google', 'Goldman Sachs'], description: 'Find median of two sorted arrays.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/median-of-two-sorted-arrays' },
+    { id: 'p5', title: 'Longest Palindromic Substring', difficulty: 'Medium', topic: 'Dynamic Programming', companies: ['Microsoft', 'Amazon'], description: 'Find longest palindromic substring.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/longest-palindromic-substring' },
+    { id: 'p6', title: 'Container With Most Water', difficulty: 'Medium', topic: 'Two Pointer', companies: ['Google', 'Uber'], description: 'Find two lines that together with x-axis forms container containing most water.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/container-with-most-water' },
+    { id: 'p7', title: 'Trapping Rain Water', difficulty: 'Hard', topic: 'Two Pointer', companies: ['Amazon', 'Google'], description: 'Calculate how much water can be trapped after raining.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/trapping-rain-water' },
+    { id: 'p8', title: 'Merge K Sorted Lists', difficulty: 'Hard', topic: 'Heap', companies: ['Google', 'Microsoft'], description: 'Merge k sorted linked lists.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/merge-k-sorted-lists' },
+    { id: 'p9', title: 'Valid Parentheses', difficulty: 'Easy', topic: 'Stacks', companies: ['Amazon', 'Microsoft', 'Google'], description: 'Determine if string of brackets is valid.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/valid-parentheses' },
+    { id: 'p10', title: 'Subarray Sum Equals K', difficulty: 'Medium', topic: 'HashMap', companies: ['Google', 'Facebook'], description: 'Find total number of continuous subarrays whose sum equals k.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/subarray-sum-equals-k' },
+    { id: 'p11', title: 'LRU Cache', difficulty: 'Hard', topic: 'System Design', companies: ['Google', 'Amazon', 'Microsoft'], description: 'Design and implement a Least Recently Used (LRU) cache data structure.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/lru-cache' },
+    { id: 'p12', title: 'Word Search', difficulty: 'Medium', topic: 'Backtracking', companies: ['Amazon', 'Microsoft'], description: 'Check if word exists in 2D grid of characters.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/word-search' },
+    { id: 'p13', title: 'Binary Tree Level Order Traversal', difficulty: 'Medium', topic: 'Trees', companies: ['Amazon', 'Microsoft'], description: 'Return level order traversal of binary tree nodes.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/binary-tree-level-order-traversal' },
+    { id: 'p14', title: 'Number of Islands', difficulty: 'Medium', topic: 'Graphs', companies: ['Amazon', 'Google', 'Microsoft'], description: 'Count number of islands in 2D binary grid.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/number-of-islands' },
+    { id: 'p15', title: 'Coin Change', difficulty: 'Medium', topic: 'Dynamic Programming', companies: ['Amazon', 'Goldman Sachs'], description: 'Compute fewest number of coins needed to make up amount.', platform: 'LeetCode', platform_url: 'https://leetcode.com/problems/coin-change' }
+  ];
+
+  const seedCompaniesData = [
+    { id: '1', name: 'Google', logo: 'G', tier: 'S', domain: 'Technology', ctc_range: '40-60 LPA', roles: ['SWE', 'SWE-II'], topics_required: ['Graphs', 'DP', 'Trees', 'System Design'], hiring_status: 'upcoming', drive_date: '2025-03-20', locations: ['Bengaluru', 'Hyderabad'] },
+    { id: '2', name: 'Microsoft', logo: 'M', tier: 'S', domain: 'Technology', ctc_range: '35-50 LPA', roles: ['SWE', 'PM'], topics_required: ['Arrays', 'Strings', 'Trees', 'OOP'], hiring_status: 'active', drive_date: '2025-03-05', locations: ['Hyderabad', 'Noida', 'Bengaluru'] },
+    { id: '3', name: 'Amazon', logo: 'A', tier: 'S', domain: 'E-commerce/Cloud', ctc_range: '30-45 LPA', roles: ['SDE-I', 'SDE-II'], topics_required: ['Arrays', 'Strings', 'Trees', 'Graphs', 'DP'], hiring_status: 'active', locations: ['Bengaluru', 'Hyderabad', 'Chennai', 'Pune'] },
+    { id: '4', name: 'Adobe', logo: 'Ad', tier: 'A', domain: 'Creative Software', ctc_range: '20-35 LPA', roles: ['SDE-I', 'Research Engineer'], topics_required: ['Graphs', 'DP', 'Segment Trees'], hiring_status: 'upcoming', drive_date: '2025-02-15', locations: ['Noida', 'Bengaluru'] },
+    { id: '5', name: 'Goldman Sachs', logo: 'GS', tier: 'A', domain: 'Finance/Tech', ctc_range: '25-40 LPA', roles: ['Analyst SDE', 'Quant Analyst'], topics_required: ['Math', 'DP', 'Graphs'], hiring_status: 'active', locations: ['Bengaluru'] }
+  ];
+
+  try {
+    const headers = {
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    };
+
+    // Upsert DSA problems
+    const dsaRes = await fetch(`${supabaseUrl}/rest/v1/dsa_problems`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(seedDSA)
+    });
+
+    // Upsert Companies
+    const compRes = await fetch(`${supabaseUrl}/rest/v1/companies`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(seedCompaniesData)
+    });
+
+    if (!dsaRes.ok || !compRes.ok) {
+      const dsaErr = !dsaRes.ok ? await dsaRes.text() : '';
+      const compErr = !compRes.ok ? await compRes.text() : '';
+      console.error('Supabase seed error:', dsaErr, compErr);
+      return res.status(500).json({ error: 'Supabase seed error', dsaErr, compErr });
+    }
+
+    res.json({ success: true, dsaInserted: seedDSA.length, companiesInserted: seedCompaniesData.length });
+  } catch (err: any) {
+    console.error('Seed route error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET PROFILE DETAILS
 app.get('/api/auth/me', authenticateToken, async (req: any, res: any) => {
   const db = getDb();

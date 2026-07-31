@@ -300,12 +300,23 @@ export default function AdminPage() {
           </div>
           <button
             onClick={async () => {
-              toast.loading('Seeding Supabase database with DSA problems & companies...', { id: 'seed' });
+              toast.loading('Seeding database with DSA problems & companies...', { id: 'seed' });
               try {
-                await runFullSeed();
-                toast.success('Database seeded successfully! 🎉', { id: 'seed' });
+                const res = await fetch('http://localhost:5000/api/admin/seed-supabase', { method: 'POST' });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                  toast.success(`Database seeded! ${data.dsaInserted} DSA problems & ${data.companiesInserted} companies loaded 🎉`, { id: 'seed' });
+                } else {
+                  await runFullSeed();
+                  toast.success('Database seeded successfully! 🎉', { id: 'seed' });
+                }
               } catch (err: any) {
-                toast.error('Seeding failed: ' + err.message, { id: 'seed' });
+                try {
+                  await runFullSeed();
+                  toast.success('Database seeded successfully! 🎉', { id: 'seed' });
+                } catch (fallbackErr: any) {
+                  toast.error('Seeding failed: ' + (err.message || fallbackErr.message), { id: 'seed' });
+                }
               }
             }}
             className="flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 transition-all font-semibold"
