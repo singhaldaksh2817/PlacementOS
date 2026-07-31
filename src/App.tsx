@@ -32,6 +32,8 @@ const PricingPage = lazy(() => import('./pages/PricingPage'));
 const DSADuelPage = lazy(() => import('./pages/DSADuelPage'));
 const ResumeJDTailorPage = lazy(() => import('./pages/ResumeJDTailorPage'));
 const CompanyPYQPage = lazy(() => import('./pages/CompanyPYQPage'));
+const PaymentPage = lazy(() => import('./pages/PaymentPage'));
+
 
 
 
@@ -78,8 +80,11 @@ export default function App() {
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
           <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
           <Route path="/dev-setup" element={<DevSetupPage />} />
+          {/* Payment page — full screen, no sidebar, protected */}
+          <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
 
           {/* Protected app routes */}
+
           <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dsa" element={<DSAPage />} />

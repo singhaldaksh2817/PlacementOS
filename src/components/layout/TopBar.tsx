@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Flame, Zap, Trophy, ChevronDown } from 'lucide-react';
+import { Bell, Flame, Zap, Trophy, ChevronDown, ArrowLeft } from 'lucide-react';
 import { useStore } from '../../store/useStore';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 interface TopBarProps {
   title?: string;
   subtitle?: string;
+  showBack?: boolean;
 }
 
-export default function TopBar({ title = 'Dashboard', subtitle }: TopBarProps) {
+export default function TopBar({ title = 'Dashboard', subtitle, showBack }: TopBarProps) {
   const { notifications, markNotificationRead, markAllRead, progress, user, logout } = useStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Show back button on all pages except dashboard (auto-detect unless showBack explicitly set)
+  const shouldShowBack = showBack !== undefined ? showBack : location.pathname !== '/dashboard';
   const [showNotif, setShowNotif] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const unread = notifications.filter(n => !n.read).length;
@@ -42,11 +46,22 @@ export default function TopBar({ title = 'Dashboard', subtitle }: TopBarProps) {
 
   return (
     <header className="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-dark-200/80 backdrop-blur-xl sticky top-0 z-30">
-      <div>
-        <h1 className="font-heading font-bold text-xl text-white">{title}</h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          {subtitle || new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+      <div className="flex items-center gap-3">
+        {shouldShowBack && (
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-xl bg-white/4 border border-white/8 hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-1.5 text-slate-400 hover:text-white"
+            title="Go Back"
+          >
+            <ArrowLeft size={16} />
+          </button>
+        )}
+        <div>
+          <h1 className="font-heading font-bold text-xl text-white">{title}</h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {subtitle || new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">

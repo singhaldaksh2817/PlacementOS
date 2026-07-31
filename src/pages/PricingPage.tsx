@@ -5,10 +5,13 @@ import {
   Zap, Check, X, Sparkles, ShieldCheck, HelpCircle, ArrowRight, Award
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
+
 export default function PricingPage() {
-  const { isProUser, upgradeToPro, cancelPro, applyCoupon, activeCoupon } = useStore();
+  const { isProUser, cancelPro, applyCoupon, activeCoupon } = useStore();
+  const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [promoInput, setPromoInput] = useState('');
 
@@ -27,13 +30,13 @@ export default function PricingPage() {
     }
   };
 
+  // Redirect to payment page instead of directly unlocking
   const handleTogglePro = () => {
     if (isProUser) {
       cancelPro();
-      toast.success('Subscription reverted to Free Plan');
+      toast.success('Subscription cancelled. Reverted to Free Plan.');
     } else {
-      upgradeToPro();
-      toast.success(`🎉 Welcome to PlacementOS Pro ⚡! Unlocked at ₹${finalPrice}/mo!`);
+      navigate(`/payment?plan=${billingCycle}`);
     }
   };
 
