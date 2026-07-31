@@ -88,6 +88,33 @@ export default function AdminPage() {
     supabase.from('scheduled_drives').select('*').order('created_at', { ascending: false }).then(({ data }) => {
       if (data) setSchedDrives(data);
     });
+
+    // Fetch real registered students from backend Express API or Supabase
+    fetch('http://localhost:5000/api/admin/users')
+      .then(res => res.json())
+      .then((realUsers: any[]) => {
+        if (Array.isArray(realUsers) && realUsers.length > 0) {
+          const mapped: StudentUser[] = realUsers.map(u => ({
+            id: u.id,
+            name: u.name || 'Student User',
+            email: u.email,
+            college: u.college || 'Engineering College',
+            branch: u.branch || 'CSE',
+            year: u.year || 3,
+            xp: u.xp || 0,
+            isPro: false,
+            status: 'Active',
+            targetCompany: 'Google',
+          }));
+          // Prepend real registered users before sample data
+          setStudents(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const fresh = mapped.filter(m => !existingIds.has(m.id));
+            return [...fresh, ...prev];
+          });
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleAddPlacement = async (e: React.FormEvent) => {

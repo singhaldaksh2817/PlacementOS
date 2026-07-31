@@ -196,6 +196,23 @@ app.post('/api/auth/login', async (req: express.Request, res: express.Response):
   }
 });
 
+// ADMIN GET ALL USERS
+app.get('/api/admin/users', async (req: express.Request, res: express.Response): Promise<any> => {
+  const db = getDb();
+  try {
+    const users = await db.all(`
+      SELECT u.id, u.name, u.email, u.college, u.branch, u.year, u.role, u.createdAt,
+             COALESCE(p.xp, 0) as xp, COALESCE(p.level, 1) as level
+      FROM users u
+      LEFT JOIN progress p ON u.id = p.userId
+      ORDER BY u.createdAt DESC
+    `);
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
 // GET PROFILE DETAILS
 app.get('/api/auth/me', authenticateToken, async (req: any, res: any) => {
   const db = getDb();
