@@ -236,9 +236,9 @@ app.post('/api/admin/seed-supabase', async (req: express.Request, res: express.R
   const seedCompaniesData = [
     { id: '1', name: 'Google', logo: 'G', tier: 'S', domain: 'Technology', ctc_range: '40-60 LPA', roles: ['SWE', 'SWE-II'], topics_required: ['Graphs', 'DP', 'Trees', 'System Design'], hiring_status: 'upcoming', drive_date: '2025-03-20', locations: ['Bengaluru', 'Hyderabad'] },
     { id: '2', name: 'Microsoft', logo: 'M', tier: 'S', domain: 'Technology', ctc_range: '35-50 LPA', roles: ['SWE', 'PM'], topics_required: ['Arrays', 'Strings', 'Trees', 'OOP'], hiring_status: 'active', drive_date: '2025-03-05', locations: ['Hyderabad', 'Noida', 'Bengaluru'] },
-    { id: '3', name: 'Amazon', logo: 'A', tier: 'S', domain: 'E-commerce/Cloud', ctc_range: '30-45 LPA', roles: ['SDE-I', 'SDE-II'], topics_required: ['Arrays', 'Strings', 'Trees', 'Graphs', 'DP'], hiring_status: 'active', locations: ['Bengaluru', 'Hyderabad', 'Chennai', 'Pune'] },
+    { id: '3', name: 'Amazon', logo: 'A', tier: 'S', domain: 'E-commerce/Cloud', ctc_range: '30-45 LPA', roles: ['SDE-I', 'SDE-II'], topics_required: ['Arrays', 'Strings', 'Trees', 'Graphs', 'DP'], hiring_status: 'active', drive_date: null, locations: ['Bengaluru', 'Hyderabad', 'Chennai', 'Pune'] },
     { id: '4', name: 'Adobe', logo: 'Ad', tier: 'A', domain: 'Creative Software', ctc_range: '20-35 LPA', roles: ['SDE-I', 'Research Engineer'], topics_required: ['Graphs', 'DP', 'Segment Trees'], hiring_status: 'upcoming', drive_date: '2025-02-15', locations: ['Noida', 'Bengaluru'] },
-    { id: '5', name: 'Goldman Sachs', logo: 'GS', tier: 'A', domain: 'Finance/Tech', ctc_range: '25-40 LPA', roles: ['Analyst SDE', 'Quant Analyst'], topics_required: ['Math', 'DP', 'Graphs'], hiring_status: 'active', locations: ['Bengaluru'] }
+    { id: '5', name: 'Goldman Sachs', logo: 'GS', tier: 'A', domain: 'Finance/Tech', ctc_range: '25-40 LPA', roles: ['Analyst SDE', 'Quant Analyst'], topics_required: ['Math', 'DP', 'Graphs'], hiring_status: 'active', drive_date: null, locations: ['Bengaluru'] }
   ];
 
   try {
