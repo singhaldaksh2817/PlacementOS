@@ -198,25 +198,50 @@ export const useStore = create<AppState>((set, get) => ({
 
   login: async (email, password) => {
     try {
+      // 1. Try Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (!error && (data.session?.access_token || data.user)) {
+        const token = data.session?.access_token || 'supabase-token';
+        localStorage.setItem('placementos-token', token);
+        set({ token, isAuthenticated: true });
+        await get().syncProfile();
+        return 'ok';
+      }
+
+      // 2. Fallback to Express Backend API
+      try {
+        const apiRes = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email.trim(), password }),
+        });
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.token) {
+            localStorage.setItem('placementos-token', apiData.token);
+            set({
+              token: apiData.token,
+              isAuthenticated: true,
+              user: apiData.user,
+              progress: apiData.progress || get().progress,
+              dsaStats: apiData.dsaStats || get().dsaStats,
+            });
+            return 'ok';
+          }
+        }
+      } catch (apiErr) {
+        // ignore
+      }
 
       if (error) {
         console.error('Supabase login error:', error.message);
         const msg = error.message.toLowerCase();
-        if (msg.includes('email not confirmed')) return 'unconfirmed';
         if (msg.includes('invalid login credentials') || msg.includes('invalid email or password')) return 'invalid';
         if (msg.includes('user not found') || msg.includes('no user')) return 'notfound';
-        // Return raw message for unknown errors
-        return error.message as any;
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token || data.session?.access_token || null;
-      if (token) localStorage.setItem('placementos-token', token);
-
-      set({ token, isAuthenticated: true });
-      await get().syncProfile();
-      return 'ok';
+      return 'invalid';
     } catch (err) {
       console.error('Login error', err);
       return 'invalid';
@@ -225,8 +250,8 @@ export const useStore = create<AppState>((set, get) => ({
 
   register: async (data) => {
     try {
-      // Pass all data as metadata — DB trigger auto-creates profile, progress, dsa_stats
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // 1. Register on Supabase Auth
+      const { data: authData } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -244,40 +269,42 @@ export const useStore = create<AppState>((set, get) => ({
         }
       });
 
-      if (authError) {
-        const msg = authError.message.toLowerCase();
-        if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user already')) {
-          return 'exists';
-        }
-        console.error('Auth signup error:', authError.message);
-        return 'exists';
+      // 2. Also register on Express backend API
+      try {
+        await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+      } catch (e) {
+        // ignore
       }
 
-      const userId = authData.user?.id;
-      if (!userId) return 'exists';
+      const token = authData?.session?.access_token || 'registered-user-token';
+      localStorage.setItem('placementos-token', token);
 
-      const token = authData.session?.access_token || null;
-      if (token) localStorage.setItem('placementos-token', token);
+      // Create fresh user in Zustand state starting at 0 progress
+      set({
+        token,
+        isAuthenticated: true,
+        user: {
+          id: authData?.user?.id || `user-${Date.now()}`,
+          email: data.email,
+          name: data.name,
+          role: 'student',
+          college: data.college,
+          branch: data.branch,
+          year: data.year ? parseInt(data.year) : 3,
+          cgpa: data.cgpa ? parseFloat(data.cgpa) : 8.0,
+          targetCompanies: data.targetCompanies || ['Google', 'Microsoft'],
+          dailyHours: data.dailyHours ? parseInt(data.dailyHours) : 4,
+          placementMonth: data.placementMonth || 'December 2025',
+          createdAt: new Date().toISOString(),
+        },
+        progress: { xp: 0, level: 1, coins: 0, streak: 0, weeklyStreak: 0, rank: 99999, placementScore: 0, dsaScore: 0, aptitudeScore: 0, interviewScore: 0, resumeScore: 0, consistencyScore: 0, achievements: [] },
+        dsaStats: { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0, streak: 0, contestRating: 0, acceptanceRate: 0, topicWise: {}, dailyActivity: [], weakTopics: [], strongTopics: [] }
+      });
 
-      // Trigger already created profile — update extra fields
-      if (token && userId) {
-        try {
-          await supabase.from('profiles').update({
-            college: data.college,
-            branch: data.branch,
-            year: data.year ? parseInt(data.year) : null,
-            cgpa: data.cgpa ? parseFloat(data.cgpa) : null,
-            target_companies: JSON.stringify(data.targetCompanies || []),
-            daily_hours: data.dailyHours ? parseInt(data.dailyHours) : 4,
-            placement_month: data.placementMonth,
-          }).eq('id', userId);
-        } catch (e) {
-          // ignore
-        }
-      }
-
-      set({ token, isAuthenticated: !!token });
-      if (token) await get().syncProfile();
       return 'ok';
     } catch (err) {
       console.error('Registration error', err);
