@@ -318,7 +318,7 @@ export const useStore = create<AppState>((set, get) => ({
     localStorage.removeItem('placementos-token');
     set({
       user: null, isAuthenticated: false, token: null,
-      progress: { xp: 0, level: 1, coins: 0, streak: 0, weeklyStreak: 0, rank: 99999, placementScore: 10, dsaScore: 0, aptitudeScore: 0, interviewScore: 0, resumeScore: 0, consistencyScore: 0, achievements: [] },
+      progress: { xp: 0, level: 1, coins: 0, streak: 0, weeklyStreak: 0, rank: 99999, placementScore: 0, dsaScore: 0, aptitudeScore: 0, interviewScore: 0, resumeScore: 0, consistencyScore: 0, achievements: [] },
       dsaStats: { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0, streak: 0, contestRating: 0, acceptanceRate: 0, topicWise: {}, dailyActivity: [], weakTopics: [], strongTopics: [] },
       notifications: [], chatMessages: INITIAL_CHAT,
     });
@@ -452,7 +452,7 @@ export const useStore = create<AppState>((set, get) => ({
           streak: 0,
           weekly_streak: 0,
           rank: 99999,
-          placement_score: 10,
+          placement_score: 0,
           achievements: JSON.stringify(createFreshAchievements()),
         }).select().single();
         progress = newProgress;

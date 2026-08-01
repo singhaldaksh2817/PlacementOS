@@ -78,12 +78,11 @@ export default function RoadmapPage() {
       description: `Complete quantitative & logical reasoning modules for placement screening rounds.`,
       category: 'Aptitude',
       priority: 'medium',
-      status: 'completed',
+      status: 'pending',
       dueDate: new Date().toISOString(),
       estimatedTime: 45,
       xpReward: 90,
       tags: ['Aptitude', 'Speed Test'],
-      completedAt: new Date().toISOString(),
     },
     {
       id: 'task-4',
@@ -123,10 +122,17 @@ export default function RoadmapPage() {
     }] : []),
   ], [mainWeak, secondWeak, mainTarget, secondTarget, dailyHours]);
 
-  const savedTasks = localStorage.getItem('roadmap-tasks-' + new Date().toDateString());
-  const [tasks, setTasks] = useState<RoadmapTask[]>(savedTasks ? JSON.parse(savedTasks) : initialTodayTasks);
-
   const isDemoUser = user?.id === 'demo-user-001';
+  const storageKey = `roadmap-tasks-${user?.id || 'guest'}-${new Date().toDateString()}`;
+  
+  const [tasks, setTasks] = useState<RoadmapTask[]>(() => {
+    try { localStorage.removeItem('roadmap-tasks-' + new Date().toDateString()); } catch (e) {}
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return initialTodayTasks;
+  });
 
   // Personalized weekly tasks generator
   const weekTasks = useMemo<Record<string, { category: string; title: string; status: 'completed' | 'in_progress' | 'pending' }[]>>(() => {
@@ -289,7 +295,7 @@ export default function RoadmapPage() {
 
           <div className="mt-4 h-2 bg-white/5 rounded-full overflow-hidden">
             <motion.div className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500"
-              initial={{ width: 0 }} animate={{ width: `${Math.max(15, progress.placementScore)}%` }} transition={{ duration: 1 }} />
+              initial={{ width: 0 }} animate={{ width: `${progress.placementScore}%` }} transition={{ duration: 1 }} />
           </div>
           <div className="flex justify-between text-xs text-slate-500 mt-1.5">
             <span>Foundations</span>

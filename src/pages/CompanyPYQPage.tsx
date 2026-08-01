@@ -54,24 +54,27 @@ const COMPANY_SHEETS = [
 ];
 
 export default function CompanyPYQPage() {
-  const { addXP, removeXP } = useStore();
+  const { user, addXP, removeXP } = useStore();
   const navigate = useNavigate();
   
   const [selectedCompany, setSelectedCompany] = useState<string>('All Companies');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   
+  const storageKey = `placementos-pyq-sheets-${user?.id || 'guest'}`;
+
   const [problems, setProblems] = useState<PYQProblem[]>(() => {
-    const raw = localStorage.getItem('placementos-pyq-sheets');
+    try { localStorage.removeItem('placementos-pyq-sheets'); } catch(e) {}
+    const raw = localStorage.getItem(storageKey);
     if (raw) {
       try { return JSON.parse(raw); } catch (e) {}
     }
-    return INITIAL_PYQ_PROBLEMS;
+    return INITIAL_PYQ_PROBLEMS.map(p => ({ ...p, solved: false }));
   });
 
   useEffect(() => {
-    localStorage.setItem('placementos-pyq-sheets', JSON.stringify(problems));
-  }, [problems]);
+    localStorage.setItem(storageKey, JSON.stringify(problems));
+  }, [problems, storageKey]);
 
   const toggleSolved = (id: string) => {
     setProblems(prev => prev.map(p => {

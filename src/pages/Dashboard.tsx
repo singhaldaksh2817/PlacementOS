@@ -133,8 +133,10 @@ export default function Dashboard() {
   const [quizAnswered, setQuizAnswered] = useState<number | null>(savedQuizAnswer);
 
   let savedTasks = null;
+  const taskStorageKey = `dashboard-tasks-${user?.id || 'guest'}-${new Date().toDateString()}`;
   try {
-    const raw = localStorage.getItem('dashboard-tasks-' + new Date().toDateString());
+    localStorage.removeItem('dashboard-tasks-' + new Date().toDateString());
+    const raw = localStorage.getItem(taskStorageKey);
     if (raw) savedTasks = JSON.parse(raw);
   } catch (e) {
     console.warn('Failed to parse saved tasks, using defaults');
