@@ -126,19 +126,23 @@ export default function RoadmapPage() {
   const savedTasks = localStorage.getItem('roadmap-tasks-' + new Date().toDateString());
   const [tasks, setTasks] = useState<RoadmapTask[]>(savedTasks ? JSON.parse(savedTasks) : initialTodayTasks);
 
+  const isDemoUser = user?.id === 'demo-user-001';
+
   // Personalized weekly tasks generator
   const weekTasks = useMemo<Record<string, { category: string; title: string; status: 'completed' | 'in_progress' | 'pending' }[]>>(() => {
+    const isCompleted = isDemoUser ? 'completed' : 'pending';
+    const isInProgress = isDemoUser ? 'in_progress' : 'pending';
     return {
       Mon: [
-        { category: 'DSA', title: `${mainWeak} Deep-dive`, status: 'completed' },
-        { category: 'Aptitude', title: 'Quantitative Practice', status: 'completed' },
+        { category: 'DSA', title: `${mainWeak} Deep-dive`, status: isCompleted },
+        { category: 'Aptitude', title: 'Quantitative Practice', status: isCompleted },
       ],
       Tue: [
-        { category: 'DSA', title: `${mainTarget} PYQs`, status: 'completed' },
-        { category: 'Revision', title: 'Error Log Review', status: 'in_progress' },
+        { category: 'DSA', title: `${mainTarget} PYQs`, status: isCompleted },
+        { category: 'Revision', title: 'Error Log Review', status: isInProgress },
       ],
       Wed: [
-        { category: 'DSA', title: `${secondWeak} Drills`, status: 'in_progress' },
+        { category: 'DSA', title: `${secondWeak} Drills`, status: isInProgress },
         { category: 'Interview', title: 'Behavioral Questions', status: 'pending' },
       ],
       Thu: [
@@ -158,20 +162,20 @@ export default function RoadmapPage() {
         { category: 'Revision', title: 'Weekly Recap & Retrospective', status: 'pending' },
       ],
     };
-  }, [mainWeak, secondWeak, mainTarget, secondTarget, branch]);
+  }, [mainWeak, secondWeak, mainTarget, secondTarget, branch, isDemoUser]);
 
   // Personalized placement phases
   const personalizedPhases = useMemo(() => [
     {
       name: 'Phase 1: Foundational Mastery',
       duration: 'Weeks 1-4',
-      status: 'completed',
+      status: isDemoUser ? 'completed' : 'active',
       desc: `Core CS fundamentals (${branch}), Arrays, Strings, Sorting & basic recursion.`,
     },
     {
       name: `Phase 2: Weak Area Conquest (${mainWeak} & ${secondWeak})`,
       duration: 'Weeks 5-10',
-      status: 'active',
+      status: isDemoUser ? 'active' : 'upcoming',
       desc: `Intensive algorithmic problem solving focused on ${mainWeak}, ${secondWeak}, and Trees.`,
     },
     {
@@ -186,16 +190,16 @@ export default function RoadmapPage() {
       status: 'upcoming',
       desc: `AI Mock interviews, STAR behavioral readiness, ATS resume optimization, and referral pushes.`,
     },
-  ], [branch, mainWeak, secondWeak, targetCompanies, mainTarget, secondTarget, placementMonth]);
+  ], [branch, mainWeak, secondWeak, targetCompanies, mainTarget, secondTarget, placementMonth, isDemoUser]);
 
   // Personalized weekly & monthly goals
   const personalizedGoals = useMemo(() => ({
     weekly: [
-      { goal: `Solve 15 ${mainWeak} problems`, progress: 65, done: false },
-      { goal: `Complete ${mainTarget} Online Assessment simulation`, progress: 100, done: true },
-      { goal: `Achieve 85%+ score in Aptitude Speed Test`, progress: 100, done: true },
-      { goal: `Practice ${secondWeak} graph/tree traversals`, progress: 40, done: false },
-      { goal: `Optimize resume ATS score for ${mainTarget}`, progress: 20, done: false },
+      { goal: `Solve 15 ${mainWeak} problems`, progress: isDemoUser ? 65 : 0, done: false },
+      { goal: `Complete ${mainTarget} Online Assessment simulation`, progress: isDemoUser ? 100 : 0, done: isDemoUser },
+      { goal: `Achieve 85%+ score in Aptitude Speed Test`, progress: isDemoUser ? 100 : 0, done: isDemoUser },
+      { goal: `Practice ${secondWeak} graph/tree traversals`, progress: isDemoUser ? 40 : 0, done: false },
+      { goal: `Optimize resume ATS score for ${mainTarget}`, progress: isDemoUser ? 20 : 0, done: false },
     ],
     milestones: [
       { milestone: `Target readiness for ${mainTarget} (${targetCompanies.join(', ')})`, by: placementMonth, status: 'on-track' },
@@ -203,7 +207,7 @@ export default function RoadmapPage() {
       { milestone: `Maintain ${dailyHours}h daily prep streak (Current: ${progress.streak} days)`, by: 'Ongoing', status: 'on-track' },
       { milestone: `Complete 10 ${mainTarget}-style AI Mock Interviews`, by: placementMonth, status: 'upcoming' },
     ]
-  }), [mainWeak, secondWeak, mainTarget, targetCompanies, placementMonth, dailyHours, progress.streak]);
+  }), [mainWeak, secondWeak, mainTarget, targetCompanies, placementMonth, dailyHours, progress.streak, isDemoUser]);
 
   const completedCount = tasks.filter(t => t.status === 'completed').length;
   const totalXP = tasks.filter(t => t.status === 'completed').reduce((s, t) => s + t.xpReward, 0);

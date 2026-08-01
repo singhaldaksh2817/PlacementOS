@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { COMPANIES, DSA_PROBLEMS } from '../data/mockData';
 import { supabase } from '../lib/supabaseClient';
 import type { Company } from '../types';
+import { useStore } from '../store/useStore';
 
 
 const tierColors: Record<string, string> = {
@@ -216,7 +217,9 @@ function CompanyCard({ company, expanded, onClick, onOpenPYQ }: { company: Compa
 }
 
 export default function CompaniesPage() {
+  const { user, progress, dsaStats } = useStore();
   const navigate = useNavigate();
+
   const [search, setSearch] = useState('');
   const [tierFilter, setTierFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -227,29 +230,38 @@ export default function CompaniesPage() {
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [usingLiveData, setUsingLiveData] = useState(false);
 
+  const isDemo = user?.id === 'demo-user-001';
+  const dsaScore = progress?.dsaScore || 0;
+  const aptScore = progress?.aptitudeScore || 0;
+  const totalSolved = dsaStats?.totalSolved || 0;
+
   // Fetch companies from Supabase; fall back to mockData if table empty
   useEffect(() => {
     supabase.from('companies').select('*').then(({ data, error }) => {
       if (!error && data && data.length > 0) {
         // Map snake_case columns back to camelCase for compatibility
-        const mapped: Company[] = data.map((c: any) => ({
-          id: c.id, name: c.name, logo: c.logo || c.name?.[0] || 'C', tier: c.tier || 'A',
-          domain: c.domain || 'Technology', ctcRange: c.ctc_range || '15-25 LPA',
-          roles: c.roles || [], oaPattern: c.oa_pattern || ['Coding', 'Aptitude'],
-          interviewRounds: c.interview_rounds || ['OA', 'Technical', 'HR'],
-          topicsRequired: c.topics_required || [],
-          recentlyAsked: c.recently_asked || [], hiringStatus: c.hiring_status || 'upcoming',
-          driveDate: c.drive_date, deadline: c.deadline,
-          locations: c.locations || [], eligibilityCGPA: c.eligibility_cgpa || 6.5,
-          tips: c.tips || [], skills: c.skills || [],
-          projectsPreferred: [], readinessScore: 60, probability: 50,
-        }));
+        const mapped: Company[] = data.map((c: any) => {
+          const rScore = isDemo ? (c.readiness_score || 60) : Math.min(100, Math.round((dsaScore * 0.5) + (aptScore * 0.3) + (totalSolved * 2)));
+          const prob = isDemo ? (c.probability || 50) : Math.min(99, Math.round(rScore * 0.8));
+          return {
+            id: c.id, name: c.name, logo: c.logo || c.name?.[0] || 'C', tier: c.tier || 'A',
+            domain: c.domain || 'Technology', ctcRange: c.ctc_range || '15-25 LPA',
+            roles: c.roles || [], oaPattern: c.oa_pattern || ['Coding', 'Aptitude'],
+            interviewRounds: c.interview_rounds || ['OA', 'Technical', 'HR'],
+            topicsRequired: c.topics_required || [],
+            recentlyAsked: c.recently_asked || [], hiringStatus: c.hiring_status || 'upcoming',
+            driveDate: c.drive_date, deadline: c.deadline,
+            locations: c.locations || [], eligibilityCGPA: c.eligibility_cgpa || 6.5,
+            tips: c.tips || [], skills: c.skills || [],
+            projectsPreferred: [], readinessScore: rScore, probability: prob,
+          };
+        });
         setCompanies(mapped);
         setUsingLiveData(true);
       }
       setLoadingCompanies(false);
     });
-  }, []);
+  }, [dsaScore, aptScore, totalSolved, isDemo]);
 
   const filtered = companies
     .filter(c => {
