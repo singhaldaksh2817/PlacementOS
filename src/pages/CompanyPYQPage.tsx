@@ -23,25 +23,25 @@ interface PYQProblem {
 
 const INITIAL_PYQ_PROBLEMS: PYQProblem[] = [
   // Google Sheet
-  { id: 'g1', title: 'Two Sum', difficulty: 'Easy', topic: 'Arrays', company: 'Google', yearAsked: '2024', solved: true, leetcodeUrl: 'https://leetcode.com/problems/two-sum/' },
-  { id: 'g2', title: 'Longest Substring Without Repeating Characters', difficulty: 'Medium', topic: 'Strings', company: 'Google', yearAsked: '2024', solved: true, leetcodeUrl: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/' },
+  { id: 'g1', title: 'Two Sum', difficulty: 'Easy', topic: 'Arrays', company: 'Google', yearAsked: '2024', solved: false, leetcodeUrl: 'https://leetcode.com/problems/two-sum/' },
+  { id: 'g2', title: 'Longest Substring Without Repeating Characters', difficulty: 'Medium', topic: 'Strings', company: 'Google', yearAsked: '2024', solved: false, leetcodeUrl: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/' },
   { id: 'g3', title: 'Median of Two Sorted Arrays', difficulty: 'Hard', topic: 'Binary Search', company: 'Google', yearAsked: '2024', solved: false, leetcodeUrl: 'https://leetcode.com/problems/median-of-two-sorted-arrays/' },
   { id: 'g4', title: 'Trapping Rain Water', difficulty: 'Hard', topic: 'Dynamic Programming', company: 'Google', yearAsked: '2023', solved: false, leetcodeUrl: 'https://leetcode.com/problems/trapping-rain-water/' },
   { id: 'g5', title: 'Word Ladder Length', difficulty: 'Hard', topic: 'Graphs', company: 'Google', yearAsked: '2025', solved: false, leetcodeUrl: 'https://leetcode.com/problems/word-ladder/' },
 
   // Amazon Sheet
-  { id: 'a1', title: 'LRU Cache Design', difficulty: 'Medium', topic: 'Hash Table & Doubly Linked List', company: 'Amazon', yearAsked: '2025', solved: true, leetcodeUrl: 'https://leetcode.com/problems/lru-cache/' },
-  { id: 'a2', title: 'Number of Islands', difficulty: 'Medium', topic: 'Graphs (BFS/DFS)', company: 'Amazon', yearAsked: '2024', solved: true, leetcodeUrl: 'https://leetcode.com/problems/number-of-islands/' },
+  { id: 'a1', title: 'LRU Cache Design', difficulty: 'Medium', topic: 'Hash Table & Doubly Linked List', company: 'Amazon', yearAsked: '2025', solved: false, leetcodeUrl: 'https://leetcode.com/problems/lru-cache/' },
+  { id: 'a2', title: 'Number of Islands', difficulty: 'Medium', topic: 'Graphs (BFS/DFS)', company: 'Amazon', yearAsked: '2024', solved: false, leetcodeUrl: 'https://leetcode.com/problems/number-of-islands/' },
   { id: 'a3', title: 'Kth Largest Element in an Array', difficulty: 'Medium', topic: 'Heap / Priority Queue', company: 'Amazon', yearAsked: '2024', solved: false, leetcodeUrl: 'https://leetcode.com/problems/kth-largest-element-in-an-array/' },
   { id: 'a4', title: 'Serialize and Deserialize Binary Tree', difficulty: 'Hard', topic: 'Trees', company: 'Amazon', yearAsked: '2023', solved: false, leetcodeUrl: 'https://leetcode.com/problems/serialize-and-deserialize-binary-tree/' },
 
   // Microsoft Sheet
-  { id: 'm1', title: 'Spiral Matrix', difficulty: 'Medium', topic: 'Matrix', company: 'Microsoft', yearAsked: '2024', solved: true, leetcodeUrl: 'https://leetcode.com/problems/spiral-matrix/' },
+  { id: 'm1', title: 'Spiral Matrix', difficulty: 'Medium', topic: 'Matrix', company: 'Microsoft', yearAsked: '2024', solved: false, leetcodeUrl: 'https://leetcode.com/problems/spiral-matrix/' },
   { id: 'm2', title: 'Reverse Nodes in k-Group', difficulty: 'Hard', topic: 'Linked List', company: 'Microsoft', yearAsked: '2024', solved: false, leetcodeUrl: 'https://leetcode.com/problems/reverse-nodes-in-k-group/' },
   { id: 'm3', title: 'Binary Tree Zigzag Level Order Traversal', difficulty: 'Medium', topic: 'Trees', company: 'Microsoft', yearAsked: '2025', solved: false, leetcodeUrl: 'https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/' },
 
   // Flipkart & Atlassian Sheet
-  { id: 'f1', title: 'Course Schedule II', difficulty: 'Medium', topic: 'Topological Sort', company: 'Flipkart', yearAsked: '2024', solved: true, leetcodeUrl: 'https://leetcode.com/problems/course-schedule-ii/' },
+  { id: 'f1', title: 'Course Schedule II', difficulty: 'Medium', topic: 'Topological Sort', company: 'Flipkart', yearAsked: '2024', solved: false, leetcodeUrl: 'https://leetcode.com/problems/course-schedule-ii/' },
   { id: 'f2', title: 'Sliding Window Maximum', difficulty: 'Hard', topic: 'Sliding Window', company: 'Flipkart', yearAsked: '2025', solved: false, leetcodeUrl: 'https://leetcode.com/problems/sliding-window-maximum/' },
 ];
 

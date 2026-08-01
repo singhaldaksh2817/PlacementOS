@@ -120,7 +120,7 @@ function createFreshTopicWise(): Record<string, { solved: number; total: number;
   const topics = ['Arrays', 'Strings', 'Linked List', 'Trees', 'Graphs', 'Dynamic Programming', 'HashMap', 'Stacks', 'Queues', 'Binary Search', 'Two Pointer', 'Sliding Window', 'Heap', 'Trie', 'Backtracking', 'Greedy', 'System Design', 'BFS', 'DFS'];
   const obj: Record<string, any> = {};
   topics.forEach(t => {
-    obj[t] = { solved: 15, total: 30, strength: 50 };
+    obj[t] = { solved: 0, total: 30, strength: 0 };
   });
   return obj;
 }
@@ -128,14 +128,10 @@ function createFreshTopicWise(): Record<string, { solved: number; total: number;
 function createFreshDailyActivity(): { date: string; count: number; problems: string[] }[] {
   const result: { date: string; count: number; problems: string[] }[] = [];
   const today = new Date();
-  for (let i = 167; i >= 0; i--) {
+  for (let i = 29; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const dayOfWeek = d.getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const hasActivity = Math.random() < (isWeekend ? 0.8 : 0.6);
-    const count = hasActivity ? Math.floor(1 + Math.random() * 5) : 0;
-    result.push({ date: d.toISOString().split('T')[0], count, problems: ['Two Sum', 'LRU Cache'].slice(0, count) });
+    result.push({ date: d.toISOString().split('T')[0], count: 0, problems: [] });
   }
   return result;
 }

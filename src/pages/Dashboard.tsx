@@ -463,7 +463,13 @@ export default function Dashboard() {
               <h3 className="font-semibold text-white">Progress Over Time</h3>
             </div>
             <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={ANALYTICS_DATA.progressOverTime.slice(-8)}>
+              <AreaChart data={user?.id === 'demo-user-001' ? ANALYTICS_DATA.progressOverTime.slice(-8) : [
+                { date: 'Mon', dsa: Math.max(0, (progress.dsaScore || 0) - 15), aptitude: Math.max(0, (progress.aptitudeScore || 0) - 15), interview: Math.max(0, (progress.interviewScore || 0) - 15) },
+                { date: 'Tue', dsa: Math.max(0, (progress.dsaScore || 0) - 10), aptitude: Math.max(0, (progress.aptitudeScore || 0) - 10), interview: Math.max(0, (progress.interviewScore || 0) - 10) },
+                { date: 'Wed', dsa: Math.max(0, (progress.dsaScore || 0) - 5), aptitude: Math.max(0, (progress.aptitudeScore || 0) - 5), interview: Math.max(0, (progress.interviewScore || 0) - 5) },
+                { date: 'Thu', dsa: Math.max(0, (progress.dsaScore || 0) - 2), aptitude: Math.max(0, (progress.aptitudeScore || 0) - 2), interview: Math.max(0, (progress.interviewScore || 0) - 2) },
+                { date: 'Today', dsa: progress.dsaScore || 0, aptitude: progress.aptitudeScore || 0, interview: progress.interviewScore || 0 },
+              ]}>
                 <defs>
                   <linearGradient id="dsaGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
@@ -512,7 +518,14 @@ export default function Dashboard() {
               <h3 className="font-semibold text-white">Skill Radar</h3>
             </div>
             <ResponsiveContainer width="100%" height={210}>
-              <RadarChart data={ANALYTICS_DATA.skillRadar} margin={{ top: 0, right: 20, bottom: 0, left: 20 }}>
+              <RadarChart data={user?.id === 'demo-user-001' ? ANALYTICS_DATA.skillRadar : [
+                { subject: 'DSA', score: progress.dsaScore || 0, fullMark: 100 },
+                { subject: 'Aptitude', score: progress.aptitudeScore || 0, fullMark: 100 },
+                { subject: 'Interview', score: progress.interviewScore || 0, fullMark: 100 },
+                { subject: 'Resume', score: progress.resumeScore || 0, fullMark: 100 },
+                { subject: 'System Design', score: Math.round((progress.dsaScore || 0) * 0.8), fullMark: 100 },
+                { subject: 'CS Fundamentals', score: progress.aptitudeScore || 0, fullMark: 100 },
+              ]} margin={{ top: 0, right: 20, bottom: 0, left: 20 }}>
                 <PolarGrid stroke="rgba(255,255,255,0.08)" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 10 }} />
                 <Radar name="Skills" dataKey="score" stroke="#6366f1" fill="#6366f1" fillOpacity={0.15} strokeWidth={2} />

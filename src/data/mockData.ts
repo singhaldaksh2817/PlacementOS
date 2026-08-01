@@ -140,13 +140,13 @@ export const TODAY_TASKS: RoadmapTask[] = [
   {
     id: '1', title: 'Solve 3 DP problems',
     description: 'Focus on interval DP and memoization patterns. Practice on LeetCode medium difficulty.',
-    category: 'DSA', priority: 'high', status: 'completed', dueDate: new Date().toISOString(),
-    estimatedTime: 90, xpReward: 150, tags: ['DP', 'LeetCode'], completedAt: new Date(Date.now() - 3600000).toISOString(),
+    category: 'DSA', priority: 'high', status: 'pending', dueDate: new Date().toISOString(),
+    estimatedTime: 90, xpReward: 150, tags: ['DP', 'LeetCode'],
   },
   {
     id: '2', title: 'Aptitude: Probability & Statistics',
     description: 'Complete 20 questions on probability, combinations, and permutations.',
-    category: 'Aptitude', priority: 'high', status: 'in_progress', dueDate: new Date().toISOString(),
+    category: 'Aptitude', priority: 'high', status: 'pending', dueDate: new Date().toISOString(),
     estimatedTime: 45, xpReward: 100, tags: ['Probability', 'Aptitude'],
   },
   {
