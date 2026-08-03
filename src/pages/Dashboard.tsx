@@ -236,11 +236,20 @@ export default function Dashboard() {
                 <div className="text-xs text-slate-500">Tasks Today</div>
               </div>
               <div className="relative">
-                <CircularProgress value={progress.placementScore} size={90} strokeWidth={8} color="#6366f1" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-bold text-white">{progress.placementScore}</span>
-                  <span className="text-xs text-slate-500">Score</span>
-                </div>
+                {(() => {
+                  const scoreVal = (progress.dsaScore === 0 && progress.aptitudeScore === 0 && progress.interviewScore === 0 && progress.resumeScore === 0)
+                    ? 0
+                    : progress.placementScore;
+                  return (
+                    <>
+                      <CircularProgress value={scoreVal} size={90} strokeWidth={8} color="#6366f1" />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-xl font-bold text-white">{scoreVal}</span>
+                        <span className="text-xs text-slate-500">Score</span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
