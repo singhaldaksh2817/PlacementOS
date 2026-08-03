@@ -327,12 +327,12 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section id="pricing" className="py-24 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <span className="badge badge-blue mb-4 inline-block">Pricing</span>
             <h2 className="font-heading text-4xl font-bold text-white">Simple, transparent pricing</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               {
                 name: 'Free', price: '₹0', period: '/forever',
@@ -343,11 +343,6 @@ export default function LandingPage() {
                 name: 'Pro', price: '₹499', period: '/month',
                 features: ['Unlimited DSA Problems', 'Full Aptitude Suite', 'Unlimited Mock Interviews', 'AI Resume Analysis', 'All 5 AI Agents', 'Priority Support', 'Leaderboard'],
                 cta: 'Start Pro Trial', highlight: true,
-              },
-              {
-                name: 'Elite', price: '₹999', period: '/month',
-                features: ['Everything in Pro', 'Live Interview Coach', 'Resume Writing Service', 'Company Referrals', '1-on-1 Mentorship', 'Placement Guarantee'],
-                cta: 'Contact Us', highlight: false,
               },
             ].map((plan, i) => (
               <motion.div
