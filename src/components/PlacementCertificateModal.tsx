@@ -13,11 +13,11 @@ export default function PlacementCertificateModal({ isOpen, onClose }: Certifica
 
   if (!isOpen) return null;
 
-  const studentName = user?.name || 'Daksh Singhal';
-  const collegeName = user?.college || 'IIT Bombay';
-  const score = progress.placementScore || 82;
-  const rank = progress.rank || 142;
-  const dsaSolved = dsaStats.totalSolved || 347;
+  const studentName = user?.name || 'Student';
+  const collegeName = user?.college || 'Engineering College';
+  const score = progress.placementScore ?? 0;
+  const rank = progress.rank ?? 99999;
+  const dsaSolved = dsaStats.totalSolved ?? 0;
   const issueDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
   const handlePrint = () => {

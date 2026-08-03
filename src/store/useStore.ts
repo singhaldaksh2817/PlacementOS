@@ -561,9 +561,9 @@ export const useStore = create<AppState>((set, get) => ({
 
   // Progress
   progress: {
-    xp: 14200, level: 15, coins: 450, streak: 23, weeklyStreak: 7, rank: 142,
-    placementScore: 82, dsaScore: 88, aptitudeScore: 78, interviewScore: 82, resumeScore: 80, consistencyScore: 92,
-    achievements: createFreshAchievements().map(a => ({ ...a, unlocked: true })),
+    xp: 0, level: 1, coins: 0, streak: 0, weeklyStreak: 0, rank: 99999,
+    placementScore: 0, dsaScore: 0, aptitudeScore: 0, interviewScore: 0, resumeScore: 0, consistencyScore: 0,
+    achievements: createFreshAchievements(),
   },
 
 
@@ -874,12 +874,12 @@ export const useStore = create<AppState>((set, get) => ({
 
   // DSA
   dsaStats: {
-    totalSolved: 347, easySolved: 140, mediumSolved: 165, hardSolved: 42,
-    streak: 23, contestRating: 1845, acceptanceRate: 72,
+    totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0,
+    streak: 0, contestRating: 0, acceptanceRate: 0,
     topicWise: createFreshTopicWise(),
     dailyActivity: createFreshDailyActivity(),
     weakTopics: ['Dynamic Programming', 'Graphs'],
-    strongTopics: ['Arrays', 'HashMap', 'Trees'],
+    strongTopics: [],
   },
 
 

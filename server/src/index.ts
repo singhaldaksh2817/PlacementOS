@@ -102,7 +102,7 @@ app.post('/api/auth/register', async (req: express.Request, res: express.Respons
     // Create User Progress
     await db.run(`
       INSERT INTO progress (userId, xp, level, coins, streak, weeklyStreak, rank, placementScore, dsaScore, aptitudeScore, interviewScore, resumeScore, consistencyScore, achievements)
-      VALUES (?, 0, 1, 0, 0, 0, 99999, 10, 0, 0, 0, 0, 0, ?)
+      VALUES (?, 0, 1, 0, 0, 0, 99999, 0, 0, 0, 0, 0, 0, ?)
     `, [userId, createFreshAchievements()]);
 
     // Create DSA Stats
@@ -122,7 +122,7 @@ app.post('/api/auth/register', async (req: express.Request, res: express.Respons
     res.json({
       token,
       user: { id: userId, email, name, role: 'student', college, branch, year, cgpa, targetCompanies, dailyHours, placementMonth },
-      progress: { xp: 0, level: 1, coins: 0, streak: 0, weeklyStreak: 0, rank: 99999, placementScore: 10, dsaScore: 0, aptitudeScore: 0, interviewScore: 0, resumeScore: 0, consistencyScore: 0, achievements: JSON.parse(createFreshAchievements()) },
+      progress: { xp: 0, level: 1, coins: 0, streak: 0, weeklyStreak: 0, rank: 99999, placementScore: 0, dsaScore: 0, aptitudeScore: 0, interviewScore: 0, resumeScore: 0, consistencyScore: 0, achievements: JSON.parse(createFreshAchievements()) },
       dsaStats: { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0, streak: 0, contestRating: 0, acceptanceRate: 0, topicWise: JSON.parse(createFreshTopicWise()), dailyActivity: [], weakTopics: ["Dynamic Programming", "Graphs"], strongTopics: [] }
     });
   } catch (err: any) {

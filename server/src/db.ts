@@ -44,7 +44,7 @@ export async function initDb() {
       streak INTEGER DEFAULT 0,
       weeklyStreak INTEGER DEFAULT 0,
       rank INTEGER DEFAULT 99999,
-      placementScore REAL DEFAULT 10,
+      placementScore REAL DEFAULT 0,
       dsaScore REAL DEFAULT 0,
       aptitudeScore REAL DEFAULT 0,
       interviewScore REAL DEFAULT 0,

@@ -205,14 +205,14 @@ export default function LeaderboardPage() {
             const userEntry: LeaderboardEntry = {
               id: user.id,
               rank: 0,
-              name: user.name || 'Daksh Singhal',
-              college: user.college || 'IIT Bombay',
+              name: user.name || 'Student',
+              college: user.college || 'Engineering College',
               targetCompany: (user.targetCompanies && user.targetCompanies[0]) || 'Google',
-              xp: progress.xp || 12450,
-              streak: progress.streak || 23,
-              problemsSolved: dsaStats.totalSolved || 347,
-              level: progress.level || 18,
-              placementScore: progress.placementScore || 72,
+              xp: progress.xp ?? 0,
+              streak: progress.streak ?? 0,
+              problemsSolved: dsaStats.totalSolved ?? 0,
+              level: progress.level ?? 1,
+              placementScore: progress.placementScore ?? 0,
               isCurrentUser: true,
             };
             const existingIdx = listWithUser.findIndex(u => u.id === user.id || u.name === user.name);
