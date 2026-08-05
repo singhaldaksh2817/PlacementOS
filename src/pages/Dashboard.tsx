@@ -160,7 +160,7 @@ export default function Dashboard() {
           confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 }, ticks: 120 });
           playTaskCompleteSound();
           addXP(t.xpReward);
-          toast.success(`+${t.xpReward} XP! Task completed 🎉`);
+          toast.success(`+${t.xpReward} XP! Task completed successfully 🎉`);
         } else {
 
           removeXP(t.xpReward);
