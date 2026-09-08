@@ -494,6 +494,74 @@ app.post('/api/ai/extract-pdf', authenticateToken, async (req: any, res: any) =>
   }
 });
 
+// ─── SUPABASE HEALTH / ACTIVITY CHECK MECHANISM ─────────────────────────────
+async function performSupabasePing(): Promise<{ success: boolean; latencyMs: number; message: string }> {
+  const startTime = Date.now();
+  if (!supabaseUrl || !supabaseAnonKey) {
+    const msg = 'Supabase credentials not configured (SUPABASE_URL or SUPABASE_ANON_KEY missing)';
+    console.warn(`[Supabase Health Check] ⚠️ ${msg}`);
+    return { success: false, latencyMs: 0, message: msg };
+  }
+
+  try {
+    // Perform a minimal, read-only query against Supabase PostgREST (SELECT id FROM companies LIMIT 1)
+    const response = await fetch(`${supabaseUrl}/rest/v1/companies?select=id&limit=1`, {
+      headers: {
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Range': '0-0'
+      }
+    });
+
+    const latencyMs = Date.now() - startTime;
+
+    if (response.ok) {
+      console.log(`[Supabase Health Check] ✅ Daily database activity check successful (${latencyMs}ms)`);
+      return { success: true, latencyMs, message: 'Supabase database query succeeded' };
+    } else {
+      const errorText = await response.text();
+      const msg = `Supabase query returned status ${response.status}: ${errorText.slice(0, 100)}`;
+      console.warn(`[Supabase Health Check] ⚠️ ${msg}`);
+      return { success: false, latencyMs, message: msg };
+    }
+  } catch (err: any) {
+    const latencyMs = Date.now() - startTime;
+    const msg = `Supabase check failed: ${err.message || err}`;
+    console.error(`[Supabase Health Check] ❌ ${msg}`);
+    return { success: false, latencyMs, message: msg };
+  }
+}
+
+// GET /api/health - Public health check endpoint
+app.get('/api/health', async (_req: express.Request, res: express.Response) => {
+  const checkResult = await performSupabasePing();
+  res.json({
+    status: checkResult.success ? 'healthy' : 'degraded',
+    service: 'placementos-backend',
+    timestamp: new Date().toISOString(),
+    supabase: checkResult,
+  });
+});
+
+// Schedule daily Supabase activity check (once every 24 hours)
+function startDailySupabaseScheduler() {
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+  // Initial check 10s after server startup
+  setTimeout(() => {
+    performSupabasePing().catch((err) => {
+      console.warn('[Supabase Health Scheduler] Initial check warning:', err.message || err);
+    });
+  }, 10000);
+
+  // Recurring check every 24 hours
+  setInterval(() => {
+    performSupabasePing().catch((err) => {
+      console.warn('[Supabase Health Scheduler] Recurring check warning:', err.message || err);
+    });
+  }, TWENTY_FOUR_HOURS);
+}
+
 
 // START
 async function start() {
@@ -501,6 +569,7 @@ async function start() {
   app.listen(PORT, () => {
     console.log(`🚀 Express server running on http://localhost:${PORT}`);
     console.log(`🤖 Gemini AI integrated and ready!`);
+    startDailySupabaseScheduler();
   });
 }
 
