@@ -1,9 +1,9 @@
-pipeline {
+﻿pipeline {
     agent any
 
     environment {
         IMAGE = 'dakshsinghal28/placementos'
-        DOCKER_PATH = 'C:\\Users\\Daksh\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe'
+        DOCKER_PATH = 'C:\Users\Daksh\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe'
     }
 
     stages {
@@ -54,7 +54,7 @@ pipeline {
             }
         }
 
-        stage('Test Docker Credentials') {
+        stage('Compare Docker Credential') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-creds',
@@ -63,7 +63,7 @@ pipeline {
                 )]) {
                     powershell '''
                         Write-Host "======================================"
-                        Write-Host "      DOCKER CREDENTIAL CHECK"
+                        Write-Host "      JENKINS CREDENTIAL CHECK"
                         Write-Host "======================================"
 
                         Write-Host "Username: [$env:DOCKER_USER]"
@@ -78,23 +78,28 @@ pipeline {
                             throw "DOCKER_TOKEN is EMPTY"
                         }
 
+                        $bytes = [System.Text.Encoding]::UTF8.GetBytes($env:DOCKER_TOKEN)
+
+                        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+
+                        $hashBytes = $sha256.ComputeHash($bytes)
+
+                        $hash = [BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
+
+                        Write-Host "Jenkins token SHA256: $hash"
+
                         Write-Host "======================================"
-                        Write-Host "Testing Docker Hub login..."
+                        Write-Host "Expected token SHA256:"
+                        Write-Host "00d516c2f6d0b180e9a5f77677489860ab8d176b8eb3443e4dd3ae3fe328abd2"
                         Write-Host "======================================"
 
-                        $env:DOCKER_TOKEN | & "${env:DOCKER_PATH}" login `
-                            --username "$env:DOCKER_USER" `
-                            --password-stdin
-
-                        Write-Host "Docker login exit code: $LASTEXITCODE"
-
-                        if ($LASTEXITCODE -ne 0) {
-                            throw "Docker Hub authentication failed."
+                        if ($hash -eq "00d516c2f6d0b180e9a5f77677489860ab8d176b8eb3443e4dd3ae3fe328abd2") {
+                            Write-Host "TOKEN MATCHES EXACTLY"
                         }
-
-                        Write-Host "======================================"
-                        Write-Host "DOCKER LOGIN SUCCESSFUL"
-                        Write-Host "======================================"
+                        else {
+                            Write-Host "TOKEN DOES NOT MATCH"
+                            throw "Jenkins is receiving a different Docker Hub token."
+                        }
                     '''
                 }
             }
@@ -103,9 +108,7 @@ pipeline {
 
     post {
         always {
-            powershell '''
-                Write-Host "Pipeline finished."
-            '''
+            Write-Host "Pipeline finished."
         }
     }
 }
