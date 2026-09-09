@@ -1,9 +1,9 @@
-pipeline {
+﻿pipeline {
     agent any
 
     environment {
         IMAGE = 'dakshsinghal28/placementos'
-        DOCKER_PATH = 'C:\\Users\\Daksh\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe'
+        DOCKER_PATH = 'C:\Users\Daksh\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe'
     }
 
     stages {
@@ -17,6 +17,8 @@ pipeline {
         stage('Verify Docker') {
             steps {
                 powershell '''
+                    Write-Host "===== DOCKER CHECK ====="
+
                     & "${env:DOCKER_PATH}" --version
                     & "${env:DOCKER_PATH}" version
 
@@ -32,77 +34,93 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 powershell '''
-                    Write-Host "Building Docker image..."
+                    Write-Host "===== BUILD IMAGE ====="
 
                     & "${env:DOCKER_PATH}" build `
                         -t "${env:IMAGE}:${env:BUILD_NUMBER}" `
                         -t "${env:IMAGE}:latest" .
 
                     if ($LASTEXITCODE -ne 0) {
-                        throw "Docker image build failed."
+                        throw "Docker build failed."
                     }
 
-                    Write-Host "Docker image built successfully."
+                    Write-Host "Docker build successful."
                 '''
             }
         }
 
-        stage('Docker Hub Login Test') {
+        stage('Check Docker Hub Connection') {
+            steps {
+                powershell '''
+                    Write-Host "======================================"
+                    Write-Host "     DOCKER HUB CONNECTION TEST"
+                    Write-Host "======================================"
+
+                    Write-Host "Testing Docker Hub registry..."
+
+                    try {
+                        $response = Invoke-WebRequest `
+                            -Uri "https://registry-1.docker.io/v2/" `
+                            -UseBasicParsing `
+                            -ErrorAction Stop
+
+                        Write-Host "HTTP Status: $($response.StatusCode)"
+                    }
+                    catch {
+                        Write-Host "Docker Hub response received:"
+                        Write-Host $_.Exception.Message
+                    }
+
+                    Write-Host ""
+                    Write-Host "Testing Docker Hub authentication endpoint..."
+
+                    try {
+                        $response = Invoke-WebRequest `
+                            -Uri "https://auth.docker.io/token?service=registry.docker.io&scope=repository:dakshsinghal28/placementos:push,pull" `
+                            -UseBasicParsing `
+                            -ErrorAction Stop
+
+                        Write-Host "Auth endpoint HTTP Status: $($response.StatusCode)"
+                    }
+                    catch {
+                        Write-Host "Auth endpoint response:"
+                        Write-Host $_.Exception.Message
+                    }
+
+                    Write-Host "======================================"
+                '''
+            }
+        }
+
+        stage('Credential Information') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_TOKEN'
                 )]) {
-
                     powershell '''
                         Write-Host "======================================"
-                        Write-Host "       DOCKER HUB LOGIN TEST"
+                        Write-Host "       CREDENTIAL INFORMATION"
                         Write-Host "======================================"
 
                         Write-Host "Username: [$env:DOCKER_USER]"
                         Write-Host "Token length: $($env:DOCKER_TOKEN.Length)"
 
-                        $tokenFile = Join-Path $env:TEMP "jenkins-docker-token.txt"
+                        Write-Host ""
+                        Write-Host "Jenkins Windows user:"
 
-                        try {
+                        whoami
 
-                            # Write the exact Jenkins credential to a temporary file
-                            [System.IO.File]::WriteAllText(
-                                $tokenFile,
-                                $env:DOCKER_TOKEN,
-                                [System.Text.UTF8Encoding]::new($false)
-                            )
+                        Write-Host ""
+                        Write-Host "USERPROFILE:"
+                        Write-Host $env:USERPROFILE
 
-                            Write-Host "Temporary credential file created."
+                        Write-Host ""
+                        Write-Host "HOME:"
+                        Write-Host $env:HOME
 
-                            # Login using the token file
-                            Get-Content $tokenFile -Raw |
-                                & "${env:DOCKER_PATH}" login `
-                                    --username "$env:DOCKER_USER" `
-                                    --password-stdin
-
-                            $loginCode = $LASTEXITCODE
-
-                            Write-Host "Docker login exit code: $loginCode"
-
-                            if ($loginCode -ne 0) {
-                                throw "Docker Hub login failed."
-                            }
-
-                            Write-Host "======================================"
-                            Write-Host "       DOCKER LOGIN SUCCESSFUL"
-                            Write-Host "======================================"
-
-                        }
-                        finally {
-
-                            if (Test-Path $tokenFile) {
-                                Remove-Item $tokenFile -Force
-                                Write-Host "Temporary credential file removed."
-                            }
-
-                        }
+                        Write-Host "======================================"
                     '''
                 }
             }
@@ -111,7 +129,7 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline finished.'
+            echo 'Diagnostic pipeline finished.'
         }
     }
 }
