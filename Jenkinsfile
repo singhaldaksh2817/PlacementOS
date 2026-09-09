@@ -17,7 +17,9 @@ pipeline {
         stage('Verify Docker') {
             steps {
                 powershell '''
-                    Write-Host "Checking Docker..."
+                    Write-Host "======================================"
+                    Write-Host "          VERIFY DOCKER"
+                    Write-Host "======================================"
 
                     & "${env:DOCKER_PATH}" --version
 
@@ -31,7 +33,7 @@ pipeline {
                         throw "Docker daemon is not available. Start Docker Desktop."
                     }
 
-                    Write-Host "Docker is working."
+                    Write-Host "Docker is working successfully."
                 '''
             }
         }
@@ -39,7 +41,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 powershell '''
-                    Write-Host "Building Docker image..."
+                    Write-Host "======================================"
+                    Write-Host "       BUILD DOCKER IMAGE"
+                    Write-Host "======================================"
 
                     & "${env:DOCKER_PATH}" build `
                         -t "${env:IMAGE}:${env:BUILD_NUMBER}" `
@@ -50,6 +54,8 @@ pipeline {
                     }
 
                     Write-Host "Docker image built successfully."
+                    Write-Host "Image: ${env:IMAGE}:${env:BUILD_NUMBER}"
+                    Write-Host "Image: ${env:IMAGE}:latest"
                 '''
             }
         }
@@ -61,11 +67,12 @@ pipeline {
                     Write-Host "        DOCKER CONTEXT CHECK"
                     Write-Host "======================================"
 
+                    Write-Host ""
                     Write-Host "Docker version:"
                     & "${env:DOCKER_PATH}" version
 
                     Write-Host ""
-                    Write-Host "Docker context:"
+                    Write-Host "Current Docker context:"
                     & "${env:DOCKER_PATH}" context show
 
                     Write-Host ""
@@ -76,6 +83,13 @@ pipeline {
                     Write-Host "Docker info:"
                     & "${env:DOCKER_PATH}" info
 
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Docker info failed."
+                    }
+
+                    Write-Host ""
+                    Write-Host "======================================"
+                    Write-Host "      DOCKER CONTEXT CHECK DONE"
                     Write-Host "======================================"
                 '''
             }
