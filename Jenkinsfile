@@ -17,17 +17,21 @@ pipeline {
         stage('Verify Docker') {
             steps {
                 powershell '''
+                    Write-Host "Checking Docker..."
+
                     & "${env:DOCKER_PATH}" --version
 
                     if ($LASTEXITCODE -ne 0) {
-                        throw 'Docker CLI could not be executed.'
+                        throw "Docker CLI could not be executed."
                     }
 
                     & "${env:DOCKER_PATH}" version
 
                     if ($LASTEXITCODE -ne 0) {
-                        throw 'Docker daemon is not available. Start Docker Desktop.'
+                        throw "Docker daemon is not available. Start Docker Desktop."
                     }
+
+                    Write-Host "Docker is working."
                 '''
             }
         }
@@ -35,18 +39,22 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 powershell '''
+                    Write-Host "Building Docker image..."
+
                     & "${env:DOCKER_PATH}" build `
                         -t "${env:IMAGE}:${env:BUILD_NUMBER}" `
                         -t "${env:IMAGE}:latest" .
 
                     if ($LASTEXITCODE -ne 0) {
-                        exit $LASTEXITCODE
+                        throw "Docker image build failed."
                     }
+
+                    Write-Host "Docker image built successfully."
                 '''
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Test Docker Credentials') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-creds',
@@ -54,48 +62,50 @@ pipeline {
                     passwordVariable: 'DOCKER_TOKEN'
                 )]) {
                     powershell '''
-                        Write-Host "Docker Hub username: $env:DOCKER_USER"
+                        Write-Host "======================================"
+                        Write-Host "      DOCKER CREDENTIAL CHECK"
+                        Write-Host "======================================"
 
-                        if ([string]::IsNullOrWhiteSpace($env:DOCKER_USER)) {
-                            throw "Docker Hub username is empty."
+                        Write-Host "Username: [$env:DOCKER_USER]"
+
+                        if ($null -eq $env:DOCKER_TOKEN) {
+                            throw "DOCKER_TOKEN is NULL"
                         }
 
-                        if ([string]::IsNullOrWhiteSpace($env:DOCKER_TOKEN)) {
-                            throw "Docker Hub token is empty."
+                        Write-Host "Token length: $($env:DOCKER_TOKEN.Length)"
+
+                        if ($env:DOCKER_TOKEN.Length -eq 0) {
+                            throw "DOCKER_TOKEN is EMPTY"
                         }
+
+                        Write-Host "======================================"
+                        Write-Host "Testing Docker Hub login..."
+                        Write-Host "======================================"
 
                         $env:DOCKER_TOKEN | & "${env:DOCKER_PATH}" login `
                             --username "$env:DOCKER_USER" `
                             --password-stdin
 
-                        if ($LASTEXITCODE -ne 0) {
-                            throw "Docker Hub login failed."
-                        }
-
-                        Write-Host "Docker Hub login successful."
-
-                        Write-Host "Pushing ${env:IMAGE}:${env:BUILD_NUMBER}"
-
-                        & "${env:DOCKER_PATH}" push `
-                            "${env:IMAGE}:${env:BUILD_NUMBER}"
+                        Write-Host "Docker login exit code: $LASTEXITCODE"
 
                         if ($LASTEXITCODE -ne 0) {
-                            throw "Failed to push build-number image."
+                            throw "Docker Hub authentication failed."
                         }
 
-                        Write-Host "Pushing ${env:IMAGE}:latest"
-
-                        & "${env:DOCKER_PATH}" push `
-                            "${env:IMAGE}:latest"
-
-                        if ($LASTEXITCODE -ne 0) {
-                            throw "Failed to push latest image."
-                        }
-
-                        Write-Host "Docker images pushed successfully."
+                        Write-Host "======================================"
+                        Write-Host "DOCKER LOGIN SUCCESSFUL"
+                        Write-Host "======================================"
                     '''
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            powershell '''
+                Write-Host "Pipeline finished."
+            '''
         }
     }
 }
