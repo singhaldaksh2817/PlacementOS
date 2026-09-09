@@ -3,7 +3,7 @@
 
     environment {
         IMAGE = 'dakshsinghal28/placementos'
-        DOCKER_PATH = 'C:\Users\Daksh\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe'
+        DOCKER_PATH = 'C:\\Users\\Daksh\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe'
     }
 
     stages {
@@ -52,11 +52,7 @@
         stage('Check Docker Hub Connection') {
             steps {
                 powershell '''
-                    Write-Host "======================================"
-                    Write-Host "     DOCKER HUB CONNECTION TEST"
-                    Write-Host "======================================"
-
-                    Write-Host "Testing Docker Hub registry..."
+                    Write-Host "===== DOCKER HUB CONNECTION TEST ====="
 
                     try {
                         $response = Invoke-WebRequest `
@@ -64,15 +60,12 @@
                             -UseBasicParsing `
                             -ErrorAction Stop
 
-                        Write-Host "HTTP Status: $($response.StatusCode)"
+                        Write-Host "Registry HTTP Status: $($response.StatusCode)"
                     }
                     catch {
-                        Write-Host "Docker Hub response received:"
+                        Write-Host "Registry response:"
                         Write-Host $_.Exception.Message
                     }
-
-                    Write-Host ""
-                    Write-Host "Testing Docker Hub authentication endpoint..."
 
                     try {
                         $response = Invoke-WebRequest `
@@ -80,14 +73,12 @@
                             -UseBasicParsing `
                             -ErrorAction Stop
 
-                        Write-Host "Auth endpoint HTTP Status: $($response.StatusCode)"
+                        Write-Host "Auth HTTP Status: $($response.StatusCode)"
                     }
                     catch {
-                        Write-Host "Auth endpoint response:"
+                        Write-Host "Auth response:"
                         Write-Host $_.Exception.Message
                     }
-
-                    Write-Host "======================================"
                 '''
             }
         }
@@ -100,16 +91,13 @@
                     passwordVariable: 'DOCKER_TOKEN'
                 )]) {
                     powershell '''
-                        Write-Host "======================================"
-                        Write-Host "       CREDENTIAL INFORMATION"
-                        Write-Host "======================================"
+                        Write-Host "===== CREDENTIAL INFORMATION ====="
 
                         Write-Host "Username: [$env:DOCKER_USER]"
                         Write-Host "Token length: $($env:DOCKER_TOKEN.Length)"
 
                         Write-Host ""
                         Write-Host "Jenkins Windows user:"
-
                         whoami
 
                         Write-Host ""
@@ -119,8 +107,6 @@
                         Write-Host ""
                         Write-Host "HOME:"
                         Write-Host $env:HOME
-
-                        Write-Host "======================================"
                     '''
                 }
             }
