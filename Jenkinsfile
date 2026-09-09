@@ -53,11 +53,20 @@ pipeline {
                     passwordVariable: 'DOCKERHUB_TOKEN'
                 )]) {
                     powershell '''
-                        $env:DOCKERHUB_TOKEN | & "${env:DOCKER_PATH}" login `
-                            --username $env:DOCKERHUB_USER `
+                        $dockerHubUser = $env:DOCKERHUB_USER.Trim()
+                        $dockerHubToken = $env:DOCKERHUB_TOKEN.Trim()
+
+                        if ([string]::IsNullOrWhiteSpace($dockerHubUser) -or [string]::IsNullOrWhiteSpace($dockerHubToken)) {
+                            throw 'Docker Hub credentials are empty. Update the Jenkins credential with the Docker Hub username and a Personal Access Token.'
+                        }
+
+                        $dockerHubToken | & "${env:DOCKER_PATH}" login `
+                            --username $dockerHubUser `
                             --password-stdin
 
-                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                        if ($LASTEXITCODE -ne 0) {
+                            throw 'Docker Hub login failed. The Jenkins username must match the image owner and the password must be a valid Docker Hub Personal Access Token.'
+                        }
 
                         & "${env:DOCKER_PATH}" push "${env:IMAGE}:${env:BUILD_NUMBER}"
                         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
