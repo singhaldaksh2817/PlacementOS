@@ -54,54 +54,30 @@ pipeline {
             }
         }
 
-        stage('Compare Docker Credential') {
+        stage('Docker Context Check') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'docker-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_TOKEN'
-                )]) {
-                    powershell '''
-                        Write-Host "======================================"
-                        Write-Host "      JENKINS CREDENTIAL CHECK"
-                        Write-Host "======================================"
+                powershell '''
+                    Write-Host "======================================"
+                    Write-Host "        DOCKER CONTEXT CHECK"
+                    Write-Host "======================================"
 
-                        Write-Host "Username: [$env:DOCKER_USER]"
+                    Write-Host "Docker version:"
+                    & "${env:DOCKER_PATH}" version
 
-                        if ($null -eq $env:DOCKER_TOKEN) {
-                            throw "DOCKER_TOKEN is NULL"
-                        }
+                    Write-Host ""
+                    Write-Host "Docker context:"
+                    & "${env:DOCKER_PATH}" context show
 
-                        Write-Host "Token length: $($env:DOCKER_TOKEN.Length)"
+                    Write-Host ""
+                    Write-Host "Available Docker contexts:"
+                    & "${env:DOCKER_PATH}" context ls
 
-                        if ($env:DOCKER_TOKEN.Length -eq 0) {
-                            throw "DOCKER_TOKEN is EMPTY"
-                        }
+                    Write-Host ""
+                    Write-Host "Docker info:"
+                    & "${env:DOCKER_PATH}" info
 
-                        $bytes = [System.Text.Encoding]::UTF8.GetBytes($env:DOCKER_TOKEN)
-
-                        $sha256 = [System.Security.Cryptography.SHA256]::Create()
-
-                        $hashBytes = $sha256.ComputeHash($bytes)
-
-                        $hash = [BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
-
-                        Write-Host "Jenkins token SHA256: $hash"
-
-                        Write-Host "======================================"
-                        Write-Host "Expected token SHA256:"
-                        Write-Host "00d516c2f6d0b180e9a5f77677489860ab8d176b8eb3443e4dd3ae3fe328abd2"
-                        Write-Host "======================================"
-
-                        if ($hash -eq "00d516c2f6d0b180e9a5f77677489860ab8d176b8eb3443e4dd3ae3fe328abd2") {
-                            Write-Host "TOKEN MATCHES EXACTLY"
-                        }
-                        else {
-                            Write-Host "TOKEN DOES NOT MATCH"
-                            throw "Jenkins is receiving a different Docker Hub token."
-                        }
-                    '''
-                }
+                    Write-Host "======================================"
+                '''
             }
         }
     }
