@@ -3,7 +3,7 @@
 
     environment {
         IMAGE = 'dakshsinghal28/placementos'
-        DOCKER_PATH = 'C:\Users\Daksh\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe'
+        DOCKER_PATH = 'C:\\Users\\Daksh\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe'
     }
 
     stages {
@@ -108,7 +108,7 @@
 
     post {
         always {
-            Write-Host "Pipeline finished."
+            echo 'Pipeline finished.'
         }
     }
 }
