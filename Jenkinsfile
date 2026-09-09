@@ -53,26 +53,37 @@ pipeline {
                     passwordVariable: 'DOCKERHUB_TOKEN'
                 )]) {
                     powershell '''
-                        $dockerHubUser = $env:DOCKERHUB_USER.Trim()
-                        $dockerHubToken = $env:DOCKERHUB_TOKEN.Trim()
+                        Write-Host "Docker Hub user: $env:DOCKERHUB_USER"
 
-                        if ([string]::IsNullOrWhiteSpace($dockerHubUser) -or [string]::IsNullOrWhiteSpace($dockerHubToken)) {
-                            throw 'Docker Hub credentials are empty. Update the Jenkins credential with the Docker Hub username and a Personal Access Token.'
+                        if ([string]::IsNullOrWhiteSpace($env:DOCKERHUB_USER)) {
+                            throw 'Docker Hub username is empty.'
                         }
 
-                        $dockerHubToken | & "${env:DOCKER_PATH}" login `
-                            --username $dockerHubUser `
+                        if ([string]::IsNullOrWhiteSpace($env:DOCKERHUB_TOKEN)) {
+                            throw 'Docker Hub token is empty.'
+                        }
+
+                        $env:DOCKERHUB_TOKEN | & "${env:DOCKER_PATH}" login `
+                            --username $env:DOCKERHUB_USER `
                             --password-stdin
 
                         if ($LASTEXITCODE -ne 0) {
-                            throw 'Docker Hub login failed. The Jenkins username must match the image owner and the password must be a valid Docker Hub Personal Access Token.'
+                            throw 'Docker Hub login failed.'
                         }
+
+                        Write-Host 'Docker Hub login successful.'
+
+                        Write-Host "Pushing ${env:IMAGE}:${env:BUILD_NUMBER}"
 
                         & "${env:DOCKER_PATH}" push "${env:IMAGE}:${env:BUILD_NUMBER}"
                         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+                        Write-Host "Pushing ${env:IMAGE}:latest"
+
                         & "${env:DOCKER_PATH}" push "${env:IMAGE}:latest"
                         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+                        Write-Host 'Docker images pushed successfully.'
                     '''
                 }
             }
