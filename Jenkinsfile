@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE = 'daksh280306/placementos'
-        PATH+DOCKER = 'C:\\Program Files\\Docker\\Docker\\resources\\bin'
+        DOCKER_PATH = 'C:\\Users\\Daksh\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe'
     }
 
     stages {
@@ -16,14 +16,16 @@ pipeline {
         stage('Verify Docker') {
             steps {
                 powershell '''
-                    $docker = Get-Command docker.exe -ErrorAction SilentlyContinue
-                    if (-not $docker) {
-                        throw 'Docker CLI was not found. Install Docker Engine/Desktop on the Jenkins agent and ensure the Jenkins service can access docker.exe.'
+                    & "${env:DOCKER_PATH}" --version
+
+                    if ($LASTEXITCODE -ne 0) {
+                        throw 'Docker CLI could not be executed.'
                     }
 
-                    docker version
+                    & "${env:DOCKER_PATH}" version
+
                     if ($LASTEXITCODE -ne 0) {
-                        throw 'Docker CLI was found, but the Docker daemon is not available. Start Docker and grant the Jenkins service access to it.'
+                        throw 'Docker daemon is not available. Start Docker Desktop.'
                     }
                 '''
             }
@@ -31,7 +33,15 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                powershell 'docker build -t "${env:IMAGE}:${env:BUILD_NUMBER}" -t "${env:IMAGE}:latest" .'
+                powershell '''
+                    & "${env:DOCKER_PATH}" build `
+                        -t "${env:IMAGE}:${env:BUILD_NUMBER}" `
+                        -t "${env:IMAGE}:latest" .
+
+                    if ($LASTEXITCODE -ne 0) {
+                        exit $LASTEXITCODE
+                    }
+                '''
             }
         }
 
@@ -43,13 +53,16 @@ pipeline {
                     passwordVariable: 'DOCKERHUB_TOKEN'
                 )]) {
                     powershell '''
-                        $env:DOCKERHUB_TOKEN | docker login --username $env:DOCKERHUB_USER --password-stdin
+                        $env:DOCKERHUB_TOKEN | & "${env:DOCKER_PATH}" login `
+                            --username $env:DOCKERHUB_USER `
+                            --password-stdin
+
                         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-                        docker push "${env:IMAGE}:${env:BUILD_NUMBER}"
+                        & "${env:DOCKER_PATH}" push "${env:IMAGE}:${env:BUILD_NUMBER}"
                         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-                        docker push "${env:IMAGE}:latest"
+                        & "${env:DOCKER_PATH}" push "${env:IMAGE}:latest"
                         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
                     '''
                 }
