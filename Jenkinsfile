@@ -7,6 +7,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -49,41 +50,49 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-creds',
-                    usernameVariable: 'DOCKERHUB_USER',
-                    passwordVariable: 'DOCKERHUB_TOKEN'
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_TOKEN'
                 )]) {
                     powershell '''
-                        Write-Host "Docker Hub user: $env:DOCKERHUB_USER"
+                        Write-Host "Docker Hub username: $env:DOCKER_USER"
 
-                        if ([string]::IsNullOrWhiteSpace($env:DOCKERHUB_USER)) {
-                            throw 'Docker Hub username is empty.'
+                        if ([string]::IsNullOrWhiteSpace($env:DOCKER_USER)) {
+                            throw "Docker Hub username is empty."
                         }
 
-                        if ([string]::IsNullOrWhiteSpace($env:DOCKERHUB_TOKEN)) {
-                            throw 'Docker Hub token is empty.'
+                        if ([string]::IsNullOrWhiteSpace($env:DOCKER_TOKEN)) {
+                            throw "Docker Hub token is empty."
                         }
 
-                        $env:DOCKERHUB_TOKEN | & "${env:DOCKER_PATH}" login `
-                            --username $env:DOCKERHUB_USER `
+                        $env:DOCKER_TOKEN | & "${env:DOCKER_PATH}" login `
+                            --username "$env:DOCKER_USER" `
                             --password-stdin
 
                         if ($LASTEXITCODE -ne 0) {
-                            throw 'Docker Hub login failed.'
+                            throw "Docker Hub login failed."
                         }
 
-                        Write-Host 'Docker Hub login successful.'
+                        Write-Host "Docker Hub login successful."
 
                         Write-Host "Pushing ${env:IMAGE}:${env:BUILD_NUMBER}"
 
-                        & "${env:DOCKER_PATH}" push "${env:IMAGE}:${env:BUILD_NUMBER}"
-                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                        & "${env:DOCKER_PATH}" push `
+                            "${env:IMAGE}:${env:BUILD_NUMBER}"
+
+                        if ($LASTEXITCODE -ne 0) {
+                            throw "Failed to push build-number image."
+                        }
 
                         Write-Host "Pushing ${env:IMAGE}:latest"
 
-                        & "${env:DOCKER_PATH}" push "${env:IMAGE}:latest"
-                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                        & "${env:DOCKER_PATH}" push `
+                            "${env:IMAGE}:latest"
 
-                        Write-Host 'Docker images pushed successfully.'
+                        if ($LASTEXITCODE -ne 0) {
+                            throw "Failed to push latest image."
+                        }
+
+                        Write-Host "Docker images pushed successfully."
                     '''
                 }
             }
