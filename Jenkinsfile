@@ -55,7 +55,7 @@ pipeline {
                             -Path $env:DOCKER_CONFIG `
                             -Force | Out-Null
 
-                        $DOCKER_TOKEN | & "${env:DOCKER_PATH}" login `
+                        $env:DOCKER_TOKEN | & "${env:DOCKER_PATH}" login `
                             --username "$env:DOCKER_USER" `
                             --password-stdin
 
