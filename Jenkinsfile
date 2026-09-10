@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     environment {
         IMAGE = 'dakshsinghal28/placementos'
         DOCKER_PATH = 'C:/Users/Daksh/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe'
@@ -8,7 +12,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -16,30 +19,21 @@ pipeline {
         }
 
         stage('Verify Docker') {
-    options {
-        skipDefaultCheckout(true)
-    }
             steps {
                 powershell '''
                     Write-Host "===== DOCKER CHECK ====="
 
                     if (-not (Test-Path "${env:DOCKER_PATH}")) {
-                        throw "Docker executable not found at ${env:DOCKER_PATH}"
+                        throw "Docker executable not found."
                     }
 
-                    Write-Host "Docker path:"
-                    Write-Host "${env:DOCKER_PATH}"
-
-                    Write-Host ""
-                    Write-Host "Docker version:"
                     & "${env:DOCKER_PATH}" version
 
                     if ($LASTEXITCODE -ne 0) {
-                        throw "Docker is not running. Please start Docker Desktop."
+                        throw "Docker Desktop is not running."
                     }
 
-                    Write-Host ""
-                        throw "Docker executable not found."
+                    Write-Host "Docker is running successfully."
                 '''
             }
         }
@@ -50,14 +44,13 @@ pipeline {
                     Write-Host "===== BUILDING DOCKER IMAGE ====="
 
                     & "${env:DOCKER_PATH}" build `
-                        throw "Docker Desktop is not running."
+                        -t "${env:IMAGE}:${env:BUILD_NUMBER}" `
                         -t "${env:IMAGE}:latest" .
 
                     if ($LASTEXITCODE -ne 0) {
                         throw "Docker image build failed."
                     }
 
-                    Write-Host ""
                     Write-Host "Docker image built successfully."
                 '''
             }
@@ -90,33 +83,29 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 powershell '''
-                    Write-Host "===== PUSHING DOCKER IMAGE ====="
+                    Write-Host "===== PUSHING IMAGE ====="
 
                     & "${env:DOCKER_PATH}" push "${env:IMAGE}:${env:BUILD_NUMBER}"
 
                     if ($LASTEXITCODE -ne 0) {
-                        throw "Docker image push failed for build number tag."
+                        throw "Failed to push build image."
                     }
 
                     & "${env:DOCKER_PATH}" push "${env:IMAGE}:latest"
 
                     if ($LASTEXITCODE -ne 0) {
-                        throw "Docker image push failed for latest tag."
+                        throw "Failed to push latest image."
                     }
 
-                    Write-Host ""
-                    Write-Host "===== PUSHING IMAGE ====="
+                    Write-Host "Docker images pushed successfully."
                 '''
             }
         }
 
-                        throw "Failed to push build image."
+        stage('Docker Logout') {
             steps {
                 powershell '''
-                    Write-Host "===== DOCKER HUB LOGOUT ====="
-
                     & "${env:DOCKER_PATH}" logout
-                        throw "Failed to push latest image."
                     Write-Host "Docker Hub logout completed."
                 '''
             }
@@ -126,23 +115,17 @@ pipeline {
     post {
         success {
             echo "========================================="
-            echo " CI/CD PIPELINE COMPLETED SUCCESSFULLY"
-            echo " Image: ${IMAGE}:${BUILD_NUMBER}"
+            echo "      PIPELINE SUCCESSFUL"
+            echo "========================================="
+            echo "Docker image: ${IMAGE}:${BUILD_NUMBER}"
+            echo "Docker image: ${IMAGE}:latest"
+            echo "========================================="
         }
 
         failure {
             echo "========================================="
-            echo " CI/CD PIPELINE FAILED"
-            echo " Check the stage above for the error."
+            echo "       PIPELINE FAILED"
             echo "========================================="
-        }
-
-        cleanup {
-            powershell '''
-                if (Test-Path "$env:WORKSPACE\\.docker-config") {
-                    Remove-Item "$env:WORKSPACE\\.docker-config" -Recurse -Force -ErrorAction SilentlyContinue
-                }
-            '''
         }
     }
 }
