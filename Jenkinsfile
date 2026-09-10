@@ -16,6 +16,9 @@ pipeline {
         }
 
         stage('Verify Docker') {
+    options {
+        skipDefaultCheckout(true)
+    }
             steps {
                 powershell '''
                     Write-Host "===== DOCKER CHECK ====="
@@ -36,7 +39,7 @@ pipeline {
                     }
 
                     Write-Host ""
-                    Write-Host "Docker is running successfully."
+                        throw "Docker executable not found."
                 '''
             }
         }
@@ -47,7 +50,7 @@ pipeline {
                     Write-Host "===== BUILDING DOCKER IMAGE ====="
 
                     & "${env:DOCKER_PATH}" build `
-                        -t "${env:IMAGE}:${env:BUILD_NUMBER}" `
+                        throw "Docker Desktop is not running."
                         -t "${env:IMAGE}:latest" .
 
                     if ($LASTEXITCODE -ne 0) {
@@ -102,18 +105,18 @@ pipeline {
                     }
 
                     Write-Host ""
-                    Write-Host "Docker images pushed successfully."
+                    Write-Host "===== PUSHING IMAGE ====="
                 '''
             }
         }
 
-        stage('Docker Logout') {
+                        throw "Failed to push build image."
             steps {
                 powershell '''
                     Write-Host "===== DOCKER HUB LOGOUT ====="
 
                     & "${env:DOCKER_PATH}" logout
-
+                        throw "Failed to push latest image."
                     Write-Host "Docker Hub logout completed."
                 '''
             }
@@ -125,8 +128,6 @@ pipeline {
             echo "========================================="
             echo " CI/CD PIPELINE COMPLETED SUCCESSFULLY"
             echo " Image: ${IMAGE}:${BUILD_NUMBER}"
-            echo " Image: ${IMAGE}:latest"
-            echo "========================================="
         }
 
         failure {
