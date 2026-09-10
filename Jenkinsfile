@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE = 'dakshsinghal28/placementos'
         DOCKER_PATH = 'C:/Users/Daksh/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe'
+        DOCKER_HOST = 'npipe:////./pipe/dockerDesktopLinuxEngine'
     }
 
     stages {
@@ -17,7 +18,9 @@ pipeline {
         stage('Verify Docker') {
             steps {
                 powershell '''
-                    & "${env:DOCKER_PATH}" --version
+                    Write-Host "===== DOCKER CONTEXT ====="
+
+                    & "${env:DOCKER_PATH}" context show
                     & "${env:DOCKER_PATH}" version
 
                     if ($LASTEXITCODE -ne 0) {
@@ -49,12 +52,6 @@ pipeline {
                     passwordVariable: 'DOCKER_TOKEN'
                 )]) {
                     powershell '''
-                        $env:DOCKER_CONFIG = "$env:WORKSPACE\\.docker-config"
-
-                        New-Item -ItemType Directory `
-                            -Path $env:DOCKER_CONFIG `
-                            -Force | Out-Null
-
                         $env:DOCKER_TOKEN | & "${env:DOCKER_PATH}" login `
                             --username "$env:DOCKER_USER" `
                             --password-stdin
