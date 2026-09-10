@@ -59,6 +59,7 @@ pipeline {
         stage('Docker Hub Login') {
             steps {
                 withCredentials([usernamePassword(
+                    // Make sure this ID matches your credential in Jenkins ('docker-creds' or 'dockerhub-cred')
                     credentialsId: 'docker-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_TOKEN'
@@ -66,9 +67,8 @@ pipeline {
                     powershell '''
                         Write-Host "===== DOCKER HUB LOGIN ====="
 
-                        $env:DOCKER_TOKEN | & "${env:DOCKER_PATH}" login `
-                            --username "$env:DOCKER_USER" `
-                            --password-stdin
+                        # FIX: Pass directly to avoid PowerShell pipe appending \r\n newline to stdin
+                        & "${env:DOCKER_PATH}" login -u "$env:DOCKER_USER" -p "$env:DOCKER_TOKEN"
 
                         if ($LASTEXITCODE -ne 0) {
                             throw "Docker Hub login failed."
@@ -102,17 +102,17 @@ pipeline {
             }
         }
 
-        stage('Docker Logout') {
-            steps {
-                powershell '''
-                    & "${env:DOCKER_PATH}" logout
-                    Write-Host "Docker Hub logout completed."
-                '''
-            }
-        }
     }
 
     post {
+        always {
+            powershell '''
+                Write-Host "===== LOGGING OUT ====="
+                & "${env:DOCKER_PATH}" logout
+                Write-Host "Docker Hub logout completed."
+            '''
+        }
+
         success {
             echo "========================================="
             echo "      PIPELINE SUCCESSFUL"
