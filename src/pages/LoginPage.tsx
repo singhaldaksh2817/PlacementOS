@@ -67,8 +67,8 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Zap size={20} className="text-white" />
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all" style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' }}>
+              <Zap size={20} style={{ color: 'var(--button-text)' }} />
             </div>
             <span className="font-heading text-2xl font-bold gradient-text">PlacementOS</span>
           </div>

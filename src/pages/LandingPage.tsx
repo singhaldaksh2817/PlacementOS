@@ -45,11 +45,11 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen animated-bg text-white overflow-x-hidden">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-xl bg-dark-200/60 transition-all duration-300">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-xl transition-all duration-300" style={{ background: 'var(--glass-bg)', borderColor: 'var(--border-color)' }}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
-              <Zap size={18} className="text-white" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-all" style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' }}>
+              <Zap size={18} style={{ color: 'var(--button-text)' }} />
             </div>
             <span className="font-heading font-bold text-xl gradient-text">PlacementOS</span>
           </div>

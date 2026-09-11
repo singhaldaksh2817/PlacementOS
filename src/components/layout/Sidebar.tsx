@@ -55,8 +55,8 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-white/5">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-          <Zap size={18} className="text-white" />
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all" style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' }}>
+          <Zap size={18} style={{ color: 'var(--button-text)' }} />
         </div>
         <AnimatePresence>
           {!sidebarCollapsed && (

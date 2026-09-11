@@ -44,17 +44,17 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     tagline: 'Clean organic editorial theme',
     bg: '#F7F5EF',
     surface: '#FFFFFF',
-    surfaceHover: '#F0F2EB',
-    border: '#D9DED8',
+    surfaceHover: '#F4F2EC',
+    border: '#D3D8D2',
     primary: '#164A41',
     secondary: '#2E8B72',
-    success: '#3B8D5B',
-    warning: '#D99A2B',
-    error: '#D95D5D',
-    text: '#17211F',
-    textMuted: '#68736F',
+    success: '#2D7A58',
+    warning: '#C8831A',
+    error: '#C94A4A',
+    text: '#121A18',
+    textMuted: '#52605C',
     previewColors: ['#F7F5EF', '#164A41', '#2E8B72'],
-    lightColorHex: 0x2e8b72,
+    lightColorHex: 0x164a41,
   },
   charcoal: {
     id: 'charcoal',
@@ -118,6 +118,9 @@ export function applyTheme(themeId: ThemeId) {
   const theme = THEMES[themeId] || THEMES.midnight;
   const root = document.documentElement;
 
+  const isLight = themeId === 'emerald';
+  const isLime = themeId === 'navy';
+
   root.setAttribute('data-theme', theme.id);
   root.style.setProperty('--bg-main', theme.bg);
   root.style.setProperty('--bg-surface', theme.surface);
@@ -130,6 +133,12 @@ export function applyTheme(themeId: ThemeId) {
   root.style.setProperty('--color-error', theme.error);
   root.style.setProperty('--text-main', theme.text);
   root.style.setProperty('--text-muted', theme.textMuted);
+  root.style.setProperty('--button-text', isLime ? '#07111F' : '#FFFFFF');
+  root.style.setProperty('--glass-bg', isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(16, 23, 32, 0.85)');
+  root.style.setProperty('--glow-primary', isLight ? 'rgba(22, 74, 65, 0.18)' : `${theme.primary}40`);
+  root.style.setProperty('--aurora-1', isLight ? 'rgba(46, 139, 114, 0.12)' : `${theme.primary}20`);
+  root.style.setProperty('--aurora-2', isLight ? 'rgba(22, 74, 65, 0.08)' : `${theme.secondary}18`);
+  root.style.setProperty('--dot-color', isLight ? 'rgba(22, 74, 65, 0.14)' : `${theme.primary}25`);
 
   try {
     localStorage.setItem('placementos-theme', theme.id);

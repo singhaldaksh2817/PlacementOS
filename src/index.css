@@ -103,6 +103,59 @@
   --glass-bg: rgba(32, 31, 38, 0.8);
 }
 
+/* Universal Theme Adapters for Tailwind Utilities & Components */
+[data-theme="emerald"] .text-white {
+  color: var(--text-main) !important;
+}
+[data-theme="emerald"] .text-slate-400,
+[data-theme="emerald"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+[data-theme="emerald"] .text-slate-300,
+[data-theme="emerald"] .text-slate-200,
+[data-theme="emerald"] .text-slate-100 {
+  color: var(--text-main) !important;
+}
+[data-theme="emerald"] .bg-dark-100,
+[data-theme="emerald"] .bg-dark-200,
+[data-theme="emerald"] .bg-dark-200\/80,
+[data-theme="emerald"] .bg-dark-200\/60,
+[data-theme="emerald"] .bg-dark-300,
+[data-theme="emerald"] .bg-dark-400 {
+  background-color: var(--bg-surface) !important;
+}
+[data-theme="emerald"] .border-white\/5,
+[data-theme="emerald"] .border-white\/6,
+[data-theme="emerald"] .border-white\/8,
+[data-theme="emerald"] .border-white\/10,
+[data-theme="emerald"] .border-white\/15,
+[data-theme="emerald"] .border-white\/20 {
+  border-color: var(--border-color) !important;
+}
+[data-theme="emerald"] .bg-white\/3,
+[data-theme="emerald"] .bg-white\/4,
+[data-theme="emerald"] .bg-white\/5,
+[data-theme="emerald"] .bg-white\/6,
+[data-theme="emerald"] .bg-white\/8,
+[data-theme="emerald"] .bg-white\/10 {
+  background-color: rgba(22, 74, 65, 0.05) !important;
+}
+[data-theme="emerald"] .bg-black\/20,
+[data-theme="emerald"] .bg-black\/40,
+[data-theme="emerald"] .bg-black\/60 {
+  background-color: rgba(22, 74, 65, 0.06) !important;
+}
+[data-theme="emerald"] .input-dark option,
+[data-theme="emerald"] select.input-dark option {
+  background: #FFFFFF !important;
+  color: #121A18 !important;
+}
+[data-theme="emerald"] .input-dark {
+  background: #FFFFFF !important;
+  border-color: #D3D8D2 !important;
+  color: #121A18 !important;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -137,37 +190,37 @@ body {
      7. 10 shooting comets with glowing tails
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Layer 0: Base — shifts between cosmic hues every 20s ── */
+/* ── Layer 0: Base — dynamic background bound to active theme ── */
 .dynamic-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  animation: base-shift 20s ease-in-out infinite alternate;
-}
-@keyframes base-shift {
-  0%   { background: radial-gradient(ellipse 140% 120% at 10% 30%, #12003a 0%, #05001a 40%, #000209 100%); }
-  25%  { background: radial-gradient(ellipse 140% 120% at 80% 10%, #001a3a 0%, #000d20 40%, #000108 100%); }
-  50%  { background: radial-gradient(ellipse 140% 120% at 50% 90%, #1a0030 0%, #0a001a 40%, #000208 100%); }
-  75%  { background: radial-gradient(ellipse 140% 120% at 20% 70%, #001a20 0%, #00100e 40%, #000108 100%); }
-  100% { background: radial-gradient(ellipse 140% 120% at 90% 50%, #140025 0%, #06001a 40%, #000109 100%); }
+  background-color: var(--bg-main);
+  transition: background-color 0.4s ease;
 }
 
-/* ── Layer 1: PRIMARY AURORA — 7 vivid electric blobs, fast ── */
+[data-theme="emerald"] .dynamic-bg {
+  background: #F7F5EF !important;
+  animation: base-shift-emerald 20s ease-in-out infinite alternate;
+}
+@keyframes base-shift-emerald {
+  0%   { background: radial-gradient(ellipse 140% 120% at 10% 30%, #F7F5EF 0%, #EFECE3 40%, #E8E4D8 100%); }
+  50%  { background: radial-gradient(ellipse 140% 120% at 80% 10%, #F0F2EB 0%, #F7F5EF 40%, #E4E8DF 100%); }
+  100% { background: radial-gradient(ellipse 140% 120% at 50% 90%, #EFECE3 0%, #E8E4D8 40%, #F7F5EF 100%); }
+}
+
+/* ── Layer 1: PRIMARY AURORA — theme sensitive blobs ── */
 .dynamic-bg::before {
   content: '';
   position: absolute;
   inset: -80%;
   background:
-    radial-gradient(ellipse 100% 80% at 10% 10%, rgba(99,  102, 241, 0.45) 0%, transparent 50%),
-    radial-gradient(ellipse  80% 100% at 90% 5%,  rgba(139,  92, 246, 0.40) 0%, transparent 50%),
-    radial-gradient(ellipse  90% 70% at 70% 90%, rgba(59,  130, 246, 0.35) 0%, transparent 50%),
-    radial-gradient(ellipse  70% 90% at 5%  80%, rgba(16,  185, 129, 0.28) 0%, transparent 50%),
-    radial-gradient(ellipse 110% 60% at 95% 55%, rgba(236,  72, 153, 0.32) 0%, transparent 50%),
-    radial-gradient(ellipse  60% 80% at 50% 50%, rgba(6,   182, 212, 0.22) 0%, transparent 50%),
-    radial-gradient(ellipse  80% 60% at 30% 20%, rgba(245, 158,  11, 0.18) 0%, transparent 50%);
-  animation: aurora-primary 12s ease-in-out infinite alternate;
+    radial-gradient(ellipse 100% 80% at 10% 10%, var(--aurora-1) 0%, transparent 50%),
+    radial-gradient(ellipse  80% 100% at 90% 5%,  var(--aurora-2) 0%, transparent 50%),
+    radial-gradient(ellipse  90% 70% at 70% 90%, var(--glow-primary) 0%, transparent 50%);
+  animation: aurora-primary 14s ease-in-out infinite alternate;
   will-change: transform;
 }
 @keyframes aurora-primary {
@@ -180,18 +233,14 @@ body {
   100% { transform: translate(-3%,  -7%)   scale(1.06) rotate(-1deg);  }
 }
 
-/* ── Layer 2: COUNTER-AURORA — opposite drift, different hues ── */
+/* ── Layer 2: COUNTER-AURORA — opposite drift ── */
 .dynamic-bg::after {
   content: '';
   position: absolute;
   inset: -50%;
   background:
-    radial-gradient(ellipse  70% 100% at 75% 25%, rgba(99,  102, 241, 0.30) 0%, transparent 45%),
-    radial-gradient(ellipse  90%  70% at 20% 75%, rgba(168,  85, 247, 0.28) 0%, transparent 45%),
-    radial-gradient(ellipse  60%  80% at 55% 55%, rgba(6,   182, 212, 0.22) 0%, transparent 45%),
-    radial-gradient(ellipse  80%  60% at 90% 85%, rgba(245, 158,  11, 0.18) 0%, transparent 45%),
-    radial-gradient(ellipse  50%  70% at 5%  20%, rgba(236,  72, 153, 0.20) 0%, transparent 45%),
-    radial-gradient(ellipse  65%  55% at 40% 90%, rgba(52,  211, 153, 0.16) 0%, transparent 45%);
+    radial-gradient(ellipse  70% 100% at 75% 25%, var(--aurora-2) 0%, transparent 45%),
+    radial-gradient(ellipse  90%  70% at 20% 75%, var(--aurora-1) 0%, transparent 45%);
   animation: aurora-counter 18s ease-in-out infinite alternate-reverse;
   will-change: transform;
 }
@@ -491,17 +540,12 @@ body {
 .glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
 .glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
 
-/* Animated gradient background (legacy fallback) */
+/* Animated gradient background (Theme responsive) */
 .animated-bg {
-  background: linear-gradient(-45deg, #04040e, #080818, #0d0d22, #06061a);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
-}
-
-@keyframes gradient {
-  0%   { background-position: 0%   50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0%   50%; }
+  background-color: var(--bg-main) !important;
+  background-image: radial-gradient(at 0% 0%, var(--aurora-1) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, var(--aurora-2) 0px, transparent 50%);
+  transition: background-color 0.3s ease;
 }
 
 /* Scan-line shimmer (for panels/cards on hover) */
@@ -550,12 +594,13 @@ body {
 
 /* Sidebar */
 .sidebar {
-  background: rgba(4, 4, 14, 0.97);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-surface) !important;
+  border-right: 1px solid var(--border-color) !important;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   position: relative;
   z-index: 10;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Radial progress */

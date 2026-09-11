@@ -90,8 +90,8 @@ export default function SignupPage() {
         {/* Logo */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-              <Zap size={18} className="text-white" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-all" style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' }}>
+              <Zap size={18} style={{ color: 'var(--button-text)' }} />
             </div>
             <span className="font-heading text-xl font-bold gradient-text">PlacementOS</span>
           </div>

@@ -22,6 +22,8 @@
             graphite: { bg: '#141318', surface: '#201F26', hover: '#292831', border: '#393640', p: '#FF6B6B', s: '#FF8E72', txt: '#FAFAFA', txtM: '#A7A5AE' }
           };
           var t = themes[saved] || themes.midnight;
+          var isLight = saved === 'emerald';
+          var isLime = saved === 'navy';
           var root = document.documentElement;
           root.setAttribute('data-theme', saved);
           root.style.setProperty('--bg-main', t.bg);
@@ -32,6 +34,12 @@
           root.style.setProperty('--color-secondary', t.s);
           root.style.setProperty('--text-main', t.txt);
           root.style.setProperty('--text-muted', t.txtM);
+          root.style.setProperty('--button-text', isLime ? '#07111F' : '#FFFFFF');
+          root.style.setProperty('--glass-bg', isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(16, 23, 32, 0.85)');
+          root.style.setProperty('--glow-primary', isLight ? 'rgba(22, 74, 65, 0.18)' : t.p + '40');
+          root.style.setProperty('--aurora-1', isLight ? 'rgba(46, 139, 114, 0.12)' : t.p + '20');
+          root.style.setProperty('--aurora-2', isLight ? 'rgba(22, 74, 65, 0.08)' : t.s + '18');
+          root.style.setProperty('--dot-color', isLight ? 'rgba(22, 74, 65, 0.14)' : t.p + '25');
         } catch(e) {}
       })();
     </script>

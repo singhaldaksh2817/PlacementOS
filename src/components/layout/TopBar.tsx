@@ -46,7 +46,10 @@ export default function TopBar({ title = 'Dashboard', subtitle, showBack }: TopB
   };
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-dark-200/80 backdrop-blur-xl sticky top-0 z-30">
+    <header
+      className="h-16 flex items-center justify-between px-6 border-b backdrop-blur-xl sticky top-0 z-30 transition-colors duration-300"
+      style={{ background: 'var(--glass-bg)', borderColor: 'var(--border-color)' }}
+    >
       <div className="flex items-center gap-3">
         {shouldShowBack && (
           <button
@@ -105,8 +108,8 @@ export default function TopBar({ title = 'Dashboard', subtitle, showBack }: TopB
                 initial={{ opacity: 0, y: 8, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                className="absolute right-0 top-12 w-80 z-50 overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/70"
-                style={{ background: '#0d0d1a' }}
+                className="absolute right-0 top-12 w-80 z-50 overflow-hidden rounded-2xl border shadow-2xl"
+                style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-color)' }}
               >
                 <div className="flex items-center justify-between px-4 py-3 border-b border-white/6">
                   <h3 className="font-semibold text-sm text-white">Notifications</h3>
@@ -165,8 +168,8 @@ export default function TopBar({ title = 'Dashboard', subtitle, showBack }: TopB
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 8 }}
-                className="absolute right-0 top-12 w-56 z-50 rounded-2xl border border-white/10 shadow-2xl shadow-black/70 overflow-hidden"
-                style={{ background: '#0d0d1a' }}
+                className="absolute right-0 top-12 w-56 z-50 rounded-2xl border shadow-2xl overflow-hidden"
+                style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-color)' }}
               >
                 {/* User info header */}
                 <div className="px-4 py-3 border-b border-white/8">
