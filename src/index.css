@@ -4,18 +4,103 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   🎨 PLACEMENTOS CENTRALIZED THEME SYSTEM (5 Themes Architecture)
+   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --bg-primary: #090a0f;
-  --bg-secondary: #0f111a;
-  --bg-tertiary: #141724;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --text-primary: #f0f0ff;
-  --text-secondary: #94a3b8;
-  --text-muted: #475569;
-  --accent-indigo: #6366f1;
-  --accent-purple: #8b5cf6;
-  --accent-blue: #3b82f6;
+  --bg-main: #080C12;
+  --bg-surface: #101720;
+  --bg-surface-hover: #16212C;
+  --border-color: #243241;
+  --color-primary: #22D3EE;
+  --color-secondary: #38BDF8;
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+  --color-error: #FB7185;
+  --text-main: #F8FAFC;
+  --text-muted: #8B9AAA;
+  --glow-primary: rgba(34, 211, 238, 0.25);
+  --glass-bg: rgba(16, 23, 32, 0.75);
+}
+
+[data-theme="midnight"] {
+  --bg-main: #080C12;
+  --bg-surface: #101720;
+  --bg-surface-hover: #16212C;
+  --border-color: #243241;
+  --color-primary: #22D3EE;
+  --color-secondary: #38BDF8;
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+  --color-error: #FB7185;
+  --text-main: #F8FAFC;
+  --text-muted: #8B9AAA;
+  --glow-primary: rgba(34, 211, 238, 0.25);
+  --glass-bg: rgba(16, 23, 32, 0.75);
+}
+
+[data-theme="emerald"] {
+  --bg-main: #F7F5EF;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #F0F2EB;
+  --border-color: #D9DED8;
+  --color-primary: #164A41;
+  --color-secondary: #2E8B72;
+  --color-success: #3B8D5B;
+  --color-warning: #D99A2B;
+  --color-error: #D95D5D;
+  --text-main: #17211F;
+  --text-muted: #68736F;
+  --glow-primary: rgba(22, 74, 65, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="charcoal"] {
+  --bg-main: #101010;
+  --bg-surface: #191919;
+  --bg-surface-hover: #242424;
+  --border-color: #343434;
+  --color-primary: #FF6B35;
+  --color-secondary: #FF8E53;
+  --color-success: #49C878;
+  --color-warning: #FFB703;
+  --color-error: #FF5C5C;
+  --text-main: #F5F5F5;
+  --text-muted: #A3A3A3;
+  --glow-primary: rgba(255, 107, 53, 0.25);
+  --glass-bg: rgba(25, 25, 25, 0.8);
+}
+
+[data-theme="navy"] {
+  --bg-main: #07111F;
+  --bg-surface: #0D1B2A;
+  --bg-surface-hover: #13263A;
+  --border-color: #23394D;
+  --color-primary: #A3E635;
+  --color-secondary: #84CC16;
+  --color-success: #4ADE80;
+  --color-warning: #FACC15;
+  --color-error: #FB7185;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --glow-primary: rgba(163, 230, 53, 0.25);
+  --glass-bg: rgba(13, 27, 42, 0.8);
+}
+
+[data-theme="graphite"] {
+  --bg-main: #141318;
+  --bg-surface: #201F26;
+  --bg-surface-hover: #292831;
+  --border-color: #393640;
+  --color-primary: #FF6B6B;
+  --color-secondary: #FF8E72;
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-error: #FB7185;
+  --text-main: #FAFAFA;
+  --text-muted: #A7A5AE;
+  --glow-primary: rgba(255, 107, 107, 0.25);
+  --glass-bg: rgba(32, 31, 38, 0.8);
 }
 
 * {
@@ -29,11 +114,12 @@ html {
 }
 
 body {
-  background-color: #090a0f !important;
-  color: var(--text-primary);
+  background-color: var(--bg-main) !important;
+  color: var(--text-main);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 
@@ -333,34 +419,36 @@ body {
 
 /* Glass Card */
 .glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg);
+  border: 1px solid var(--border-color);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card-hover {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-card-hover:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+  background: var(--bg-surface-hover);
+  border-color: var(--color-primary);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 20px var(--glow-primary);
+  transform: translateY(-4px);
 }
 
 /* Gradient Text */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-warm {
-  background: linear-gradient(135deg, #f59e0b 0%, #ec4899 50%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-warning) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -368,14 +456,14 @@ body {
 
 /* Gradient Button */
 .btn-gradient {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   border: none;
-  color: white;
+  color: #ffffff !important;
   font-weight: 600;
   padding: 10px 24px;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -383,14 +471,14 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 100%);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 .btn-gradient:hover::before { opacity: 1; }
 .btn-gradient:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px var(--glow-primary);
 }
 .btn-gradient:active {
   transform: translateY(0);

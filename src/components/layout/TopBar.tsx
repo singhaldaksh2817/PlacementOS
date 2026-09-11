@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Flame, Zap, Trophy, ChevronDown, ArrowLeft } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import ThemeSelector from '../ui/ThemeSelector';
 
 interface TopBarProps {
   title?: string;
@@ -65,6 +66,9 @@ export default function TopBar({ title = 'Dashboard', subtitle, showBack }: TopB
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Global Theme Selector */}
+        <ThemeSelector />
+
         {/* Stats */}
         <div className="hidden md:flex items-center gap-3 mr-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20">

@@ -1,8 +1,10 @@
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { useStore } from './store/useStore';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import DynamicBackground from './components/DynamicBackground';
 import { Toaster } from 'react-hot-toast';
+import { applyTheme, getInitialTheme } from './lib/themeSystem';
 
 import AppLayout from './components/layout/AppLayout';
 
@@ -11,7 +13,6 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DevSetupPage from './pages/DevSetupPage';
-import { lazy, Suspense } from 'react';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DSAPage = lazy(() => import('./pages/DSAPage'));
@@ -61,6 +62,10 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    applyTheme(getInitialTheme());
+  }, []);
+
   return (
     <ErrorBoundary>
     <BrowserRouter>

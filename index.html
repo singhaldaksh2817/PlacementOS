@@ -10,6 +10,31 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('placementos-theme') || 'midnight';
+          var themes = {
+            midnight: { bg: '#080C12', surface: '#101720', hover: '#16212C', border: '#243241', p: '#22D3EE', s: '#38BDF8', txt: '#F8FAFC', txtM: '#8B9AAA' },
+            emerald: { bg: '#F7F5EF', surface: '#FFFFFF', hover: '#F0F2EB', border: '#D9DED8', p: '#164A41', s: '#2E8B72', txt: '#17211F', txtM: '#68736F' },
+            charcoal: { bg: '#101010', surface: '#191919', hover: '#242424', border: '#343434', p: '#FF6B35', s: '#FF8E53', txt: '#F5F5F5', txtM: '#A3A3A3' },
+            navy: { bg: '#07111F', surface: '#0D1B2A', hover: '#13263A', border: '#23394D', p: '#A3E635', s: '#84CC16', txt: '#F8FAFC', txtM: '#94A3B8' },
+            graphite: { bg: '#141318', surface: '#201F26', hover: '#292831', border: '#393640', p: '#FF6B6B', s: '#FF8E72', txt: '#FAFAFA', txtM: '#A7A5AE' }
+          };
+          var t = themes[saved] || themes.midnight;
+          var root = document.documentElement;
+          root.setAttribute('data-theme', saved);
+          root.style.setProperty('--bg-main', t.bg);
+          root.style.setProperty('--bg-surface', t.surface);
+          root.style.setProperty('--bg-surface-hover', t.hover);
+          root.style.setProperty('--border-color', t.border);
+          root.style.setProperty('--color-primary', t.p);
+          root.style.setProperty('--color-secondary', t.s);
+          root.style.setProperty('--text-main', t.txt);
+          root.style.setProperty('--text-muted', t.txtM);
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

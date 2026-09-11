@@ -5,6 +5,9 @@ import {
   ArrowRight, Star, Users, Trophy, BarChart3, CheckCircle,
   ChevronRight, Cpu, Sparkles, Target, TrendingUp
 } from 'lucide-react';
+import ThemeSelector from '../components/ui/ThemeSelector';
+import PlacementJourney3D from '../components/3d/PlacementJourney3D';
+import { AnimatedCounter, ScrollReveal } from '../components/ui/Animations';
 
 const features = [
   { icon: Code2, title: 'DSA Tracker', desc: 'Track 500+ problems with AI-powered hints, explanations, and weakness detection', color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
@@ -18,7 +21,7 @@ const features = [
 const stats = [
   { value: '50,000+', label: 'Students Placed' },
   { value: '200+', label: 'Companies Tracked' },
-  { value: '1M+', label: 'Problems Solved' },
+  { value: '1,000,000+', label: 'Problems Solved' },
   { value: '95%', label: 'Satisfaction Rate' },
 ];
 
@@ -42,10 +45,10 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen animated-bg text-white overflow-x-hidden">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-xl bg-dark-200/60">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-xl bg-dark-200/60 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 flex items-center justify-center">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
               <Zap size={18} className="text-white" />
             </div>
             <span className="font-heading font-bold text-xl gradient-text">PlacementOS</span>
@@ -57,9 +60,10 @@ export default function LandingPage() {
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/login" className="text-sm text-slate-400 hover:text-white transition-colors px-4 py-2">Sign In</Link>
+            <ThemeSelector />
+            <Link to="/login" className="text-sm text-slate-400 hover:text-white transition-colors px-3 py-2">Sign In</Link>
             <Link to="/signup">
-              <motion.button whileHover={{ scale: 1.05 }} className="btn-gradient text-sm px-4 py-2">
+              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="btn-gradient text-sm px-4 py-2">
                 Get Started Free
               </motion.button>
             </Link>
@@ -146,35 +150,46 @@ export default function LandingPage() {
           </motion.div>
         </div>
 
-        {/* Floating Agent Cards */}
-        <div className="max-w-5xl mx-auto mt-16 relative">
+        {/* Interactive 3D Placement Journey Visual & Agent Overview */}
+        <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="glass-card p-6 mx-auto max-w-3xl"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="lg:col-span-7 glass-card p-4 sm:p-6 border-indigo-500/20 relative overflow-hidden group shadow-2xl min-h-[440px] flex flex-col justify-center"
+          >
+            <PlacementJourney3D />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="lg:col-span-5 glass-card p-6 border-purple-500/20"
           >
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs text-emerald-400 font-medium">5 Agents Active</span>
-              <span className="text-xs text-slate-600 ml-auto">Last sync: just now</span>
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs text-emerald-400 font-semibold tracking-wider uppercase">5 AI Agents Orchestrating</span>
+              <span className="text-[10px] text-slate-400 ml-auto font-mono">Real-time</span>
             </div>
             <div className="space-y-3">
               {agents.map((agent, i) => (
                 <motion.div
                   key={agent.name}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-white/3 border border-white/5"
+                  transition={{ delay: 0.6 + i * 0.1 }}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-white/4 border border-white/8 hover:border-white/20 transition-all hover:translate-x-1"
                 >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${agent.color}20`, border: `1px solid ${agent.color}30` }}>
-                    <Cpu size={14} style={{ color: agent.color }} />
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: `${agent.color}20`, border: `1px solid ${agent.color}40` }}
+                  >
+                    <Cpu size={15} style={{ color: agent.color }} />
                   </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-semibold text-white">{agent.name}</div>
-                    <div className="text-xs text-slate-500">{agent.status}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold text-white truncate">{agent.name}</div>
+                    <div className="text-[11px] text-slate-400 truncate">{agent.status}</div>
                   </div>
                   <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: agent.color }} />
                 </motion.div>
@@ -185,20 +200,15 @@ export default function LandingPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 px-6 border-y border-white/5">
+      <section className="py-16 px-6 border-y border-white/5 relative z-10 bg-black/20">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((s, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              viewport={{ once: true }}
-              className="text-center"
-            >
-              <div className="font-heading text-4xl font-bold gradient-text">{s.value}</div>
-              <div className="text-sm text-slate-500 mt-1">{s.label}</div>
-            </motion.div>
+            <ScrollReveal key={i} delay={i * 0.1} className="text-center">
+              <div className="font-heading text-4xl font-bold gradient-text">
+                <AnimatedCounter value={s.value} />
+              </div>
+              <div className="text-sm text-slate-400 mt-1 font-medium">{s.label}</div>
+            </ScrollReveal>
           ))}
         </div>
       </section>

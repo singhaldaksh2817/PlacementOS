@@ -4,8 +4,7 @@ import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabaseClient';
 import { playLevelUpSound } from '../lib/soundEffects';
 import type { User, UserProgress, Notification, ChatMessage, AgentStatus, DSAStats, Achievement, InterviewSession, Coupon } from '../types';
-
-
+import { ThemeId, applyTheme, getInitialTheme } from '../lib/themeSystem';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -87,6 +86,10 @@ interface AppState {
   // Sidebar
   sidebarCollapsed: boolean;
   toggleSidebar: () => void;
+
+  // Theme System
+  activeTheme: ThemeId;
+  setTheme: (theme: ThemeId) => void;
 }
 
 const INITIAL_CHAT: ChatMessage[] = [{
@@ -958,4 +961,11 @@ export const useStore = create<AppState>((set, get) => ({
   // Sidebar
   sidebarCollapsed: false,
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+
+  // Theme System
+  activeTheme: getInitialTheme(),
+  setTheme: (theme: ThemeId) => {
+    applyTheme(theme);
+    set({ activeTheme: theme });
+  },
 }));
