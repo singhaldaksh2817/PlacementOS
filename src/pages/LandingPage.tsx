@@ -57,7 +57,6 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#agents" className="hover:text-white transition-colors">AI Agents</a>
             <a href="#testimonials" className="hover:text-white transition-colors">Reviews</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
           </div>
           <div className="flex items-center gap-3">
             <ThemeSelector />
@@ -335,67 +334,28 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-24 px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="badge badge-blue mb-4 inline-block">Pricing</span>
-            <h2 className="font-heading text-4xl font-bold text-white">Simple, transparent pricing</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                name: 'Free', price: '₹0', period: '/forever',
-                features: ['DSA Tracker (100 problems)', 'Basic Aptitude Tests', '3 Mock Interviews/month', 'Company Database', 'Basic Analytics'],
-                cta: 'Get Started', highlight: false,
-              },
-              {
-                name: 'Pro', price: '₹499', period: '/month',
-                features: ['Unlimited DSA Problems', 'Full Aptitude Suite', 'Unlimited Mock Interviews', 'AI Resume Analysis', 'All 5 AI Agents', 'Priority Support', 'Leaderboard'],
-                cta: 'Start Pro Trial', highlight: true,
-              },
-            ].map((plan, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className={`glass-card p-6 relative ${plan.highlight ? 'border-indigo-500/40 bg-indigo-500/5' : ''}`}
-              >
-                {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="badge badge-indigo text-xs px-3 py-1">Most Popular</span>
-                  </div>
-                )}
-                <div className="mb-6">
-                  <h3 className="font-heading font-bold text-lg text-white">{plan.name}</h3>
-                  <div className="flex items-baseline gap-1 mt-2">
-                    <span className="font-heading text-4xl font-bold gradient-text">{plan.price}</span>
-                    <span className="text-slate-500 text-sm">{plan.period}</span>
-                  </div>
-                </div>
-                <ul className="space-y-2.5 mb-6">
-                  {plan.features.map((f, j) => (
-                    <li key={j} className="flex items-center gap-2 text-sm text-slate-300">
-                      <CheckCircle size={14} className="text-emerald-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/signup">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${
-                      plan.highlight ? 'btn-gradient' : 'border border-white/15 text-slate-300 hover:bg-white/5'
-                    }`}
-                  >
-                    {plan.cta}
-                  </motion.button>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+      {/* 100% Free Platform Banner */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass-card p-8 md:p-12 text-center relative overflow-hidden border-emerald-500/30"
+          >
+            <span className="badge badge-emerald mb-4 inline-block">100% Free Forever</span>
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
+              PlacementOS is 100% Free for All Students
+            </h2>
+            <p className="text-slate-300 max-w-2xl mx-auto mb-8 text-base leading-relaxed">
+              No hidden paywalls, no subscriptions, and no trial limits. Get full unlimited access to all 5 AI Agents, 500+ DSA problems, AI Mock Interviews, Resume Tailoring, and OA Simulators completely free.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold">
+              <span className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">✓ Unlimited AI Mock Interviews</span>
+              <span className="px-4 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400">✓ 500+ DSA Problems & Solutions</span>
+              <span className="px-4 py-2 rounded-xl bg-purple-500/10 border border-purple-500/25 text-purple-400">✓ AI Resume Content Optimization</span>
+            </div>
+          </motion.div>
         </div>
       </section>
 

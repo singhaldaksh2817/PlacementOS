@@ -146,11 +146,11 @@ function calculateRankFromXP(xp: number): number {
 
 
 export const useStore = create<AppState>((set, get) => ({
-  // Auth & Subscription
+  // Auth & Free Unlimited Platform Access
   user: null,
   isAuthenticated: !!localStorage.getItem('placementos-token'),
   token: localStorage.getItem('placementos-token'),
-  isProUser: localStorage.getItem('placementos-pro') === 'true',
+  isProUser: true, // PlacementOS is 100% FREE for all students!
 
   upgradeToPro: () => {
     localStorage.setItem('placementos-pro', 'true');
@@ -159,26 +159,16 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   cancelPro: () => {
-    localStorage.removeItem('placementos-pro');
-    set({ isProUser: false });
+    set({ isProUser: true });
   },
 
   coupons: [
-    { code: 'COLLEGE50', discountPercent: 50, maxUses: 500, usesCount: 142, isActive: true, expiryDate: '2026-12-31' },
-    { code: 'PRO30', discountPercent: 30, maxUses: 200, usesCount: 88, isActive: true, expiryDate: '2026-12-31' },
-    { code: 'IITBOMBAY', discountPercent: 40, maxUses: 100, usesCount: 35, isActive: true, expiryDate: '2026-12-31' },
+    { code: 'FREEPASS', discountPercent: 100, maxUses: 9999, usesCount: 0, isActive: true, expiryDate: '2030-12-31' },
   ],
   activeCoupon: null,
 
   applyCoupon: (code: string) => {
-    const clean = code.trim().toUpperCase();
-    const coupon = get().coupons.find(c => c.code.toUpperCase() === clean);
-    if (!coupon) return { success: false, discountPercent: 0, message: 'Invalid promo code' };
-    if (!coupon.isActive) return { success: false, discountPercent: 0, message: 'This promo code has expired' };
-    if (coupon.usesCount >= coupon.maxUses) return { success: false, discountPercent: 0, message: 'Promo code usage limit reached' };
-
-    set({ activeCoupon: coupon });
-    return { success: true, discountPercent: coupon.discountPercent, message: `🎉 ${coupon.discountPercent}% Discount Applied!` };
+    return { success: true, discountPercent: 100, message: '🎉 Platform is 100% Free Forever!' };
   },
 
   addCoupon: (coupon: Coupon) => {
@@ -192,11 +182,8 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   deleteCoupon: (code: string) => {
-    set(state => ({
-      coupons: state.coupons.filter(c => c.code !== code)
-    }));
+    set(state => ({ coupons: state.coupons.filter(c => c.code !== code) }));
   },
-
 
 
   login: async (email, password) => {
@@ -224,6 +211,7 @@ export const useStore = create<AppState>((set, get) => ({
       set({
         token: 'admin-token-super',
         isAuthenticated: true,
+        isProUser: true,
         user: adminUser,
       });
       return 'ok';
@@ -236,7 +224,7 @@ export const useStore = create<AppState>((set, get) => ({
       if (!error && (data.session?.access_token || data.user)) {
         const token = data.session?.access_token || 'supabase-token';
         localStorage.setItem('placementos-token', token);
-        set({ token, isAuthenticated: true });
+        set({ token, isAuthenticated: true, isProUser: true });
         await get().syncProfile();
         return 'ok';
       }
@@ -255,6 +243,7 @@ export const useStore = create<AppState>((set, get) => ({
             set({
               token: apiData.token,
               isAuthenticated: true,
+              isProUser: true,
               user: apiData.user,
               progress: apiData.progress || get().progress,
               dsaStats: apiData.dsaStats || get().dsaStats,
@@ -281,9 +270,11 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   register: async (data) => {
+    let userId = `user-${Date.now()}`;
+    let token = 'registered-user-token';
+
     try {
-      // 1. Register on Supabase Auth
-      const { data: authData } = await supabase.auth.signUp({
+      const { data: authData, error: authErr } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -301,47 +292,40 @@ export const useStore = create<AppState>((set, get) => ({
         }
       });
 
-      // 2. Also register on Express backend API
-      try {
-        await fetch(`${API_BASE}/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-      } catch (e) {
-        // ignore
+      if (!authErr && authData?.user) {
+        userId = authData.user.id;
+        token = authData.session?.access_token || token;
       }
-
-      const token = authData?.session?.access_token || 'registered-user-token';
-      localStorage.setItem('placementos-token', token);
-
-      // Create fresh user in Zustand state starting at 0 progress
-      set({
-        token,
-        isAuthenticated: true,
-        user: {
-          id: authData?.user?.id || `user-${Date.now()}`,
-          email: data.email,
-          name: data.name,
-          role: 'student',
-          college: data.college,
-          branch: data.branch,
-          year: data.year ? parseInt(data.year) : 3,
-          cgpa: data.cgpa ? parseFloat(data.cgpa) : 8.0,
-          targetCompanies: data.targetCompanies || ['Google', 'Microsoft'],
-          dailyHours: data.dailyHours ? parseInt(data.dailyHours) : 4,
-          placementMonth: data.placementMonth || 'December 2025',
-          createdAt: new Date().toISOString(),
-        },
-        progress: { xp: 0, level: 1, coins: 0, streak: 0, weeklyStreak: 0, rank: 99999, placementScore: 0, dsaScore: 0, aptitudeScore: 0, interviewScore: 0, resumeScore: 0, consistencyScore: 0, achievements: [] },
-        dsaStats: { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0, streak: 0, contestRating: 0, acceptanceRate: 0, topicWise: {}, dailyActivity: [], weakTopics: [], strongTopics: [] }
-      });
-
-      return 'ok';
     } catch (err) {
-      console.error('Registration error', err);
-      return 'exists';
+      console.warn('Signup auth notice:', err);
     }
+
+    localStorage.setItem('placementos-token', token);
+    localStorage.setItem('placementos-pro', 'true');
+
+    set({
+      token,
+      isAuthenticated: true,
+      isProUser: true,
+      user: {
+        id: userId,
+        email: data.email,
+        name: data.name,
+        role: 'student',
+        college: data.college || 'Engineering College',
+        branch: data.branch || 'Computer Science',
+        year: data.year ? parseInt(data.year) : 3,
+        cgpa: data.cgpa ? parseFloat(data.cgpa) : 8.0,
+        targetCompanies: data.targetCompanies?.length ? data.targetCompanies : ['Google', 'Microsoft'],
+        dailyHours: data.dailyHours ? parseInt(data.dailyHours) : 4,
+        placementMonth: data.placementMonth || 'December 2025',
+        createdAt: new Date().toISOString(),
+      },
+      progress: { xp: 100, level: 1, coins: 50, streak: 1, weeklyStreak: 1, rank: 1250, placementScore: 45, dsaScore: 40, aptitudeScore: 50, interviewScore: 35, resumeScore: 55, consistencyScore: 60, achievements: [] },
+      dsaStats: { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0, streak: 1, contestRating: 1500, acceptanceRate: 100, topicWise: {}, dailyActivity: [], weakTopics: [], strongTopics: [] }
+    });
+
+    return 'ok';
   },
 
 

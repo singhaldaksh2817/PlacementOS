@@ -89,11 +89,12 @@ export default function App() {
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
           <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
           <Route path="/dev-setup" element={<DevSetupPage />} />
-          {/* Payment page — full screen, no sidebar, protected */}
-          <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
+
+          {/* Payment & Pricing redirects to dashboard */}
+          <Route path="/payment" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/pricing" element={<Navigate to="/dashboard" replace />} />
 
           {/* Protected app routes */}
-
           <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dsa" element={<DSAPage />} />
@@ -103,23 +104,17 @@ export default function App() {
             <Route path="/duel" element={<DSADuelPage />} />
             <Route path="/jd-tailor" element={<ResumeJDTailorPage />} />
             <Route path="/pyq-tracker" element={<CompanyPYQPage />} />
-
             <Route path="/roadmap" element={<RoadmapPage />} />
-
-
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/oa-simulator" element={<OASimulatorPage />} />
             <Route path="/system-design" element={<SystemDesignPage />} />
             <Route path="/drives" element={<DrivesPage />} />
             <Route path="/companies" element={<CompaniesPage />} />
-
             <Route path="/resume" element={<ResumePage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/chat" element={<MentorChatPage />} />
             <Route path="/orchestrator" element={<AgentOrchestrator />} />
-            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/settings" element={<SettingsPage />} />
-
           </Route>
 
           {/* Admin-only route (no student sidebar) */}

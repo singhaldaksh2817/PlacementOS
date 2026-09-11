@@ -103,6 +103,12 @@
   --glass-bg: rgba(32, 31, 38, 0.8);
 }
 
+/* Force body, root & background layers to update immediately on theme switch */
+body, #root, .animated-bg, .dynamic-bg {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+}
+
 /* Universal Theme Adapters for Tailwind Utilities & Components */
 [data-theme="emerald"] .text-white {
   color: var(--text-main) !important;
