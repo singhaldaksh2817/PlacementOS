@@ -1,0 +1,30 @@
+name: Supabase Automatic Keep-Alive
+
+on:
+  schedule:
+    # Runs every 12 hours (00:00 & 12:00 UTC) to keep Supabase active 24/7/365
+    - cron: '0 0,12 * * *'
+  workflow_dispatch: # Allows manual run anytime from GitHub Actions UI
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Keep-Alive Ping to Supabase Database
+        run: |
+          SUPABASE_URL="https://xwvukvssovpjtxoxqezd.supabase.co"
+          SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3dnVrdnNzb3ZwanR4b3hxZXpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NTg3NTYsImV4cCI6MjA5OTUzNDc1Nn0.liAvJsz7S4_T4wevxZEnrw35D4xvgjzYAGKR-dD8S-g"
+          
+          echo "Sending keep-alive ping to Supabase..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "${SUPABASE_URL}/rest/v1/companies?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            -H "Range: 0-0")
+            
+          echo "Supabase HTTP Response Status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 206 ]; then
+            echo "✅ Keep-Alive successful! Supabase database activity registered."
+          else
+            echo "⚠️ Response status $HTTP_STATUS received."
+          fi
