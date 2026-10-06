@@ -18,6 +18,22 @@ pipeline {
             }
         }
 
+        stage('Maven Build') {
+            steps {
+                powershell '''
+                    Write-Host "===== MAVEN BUILD & PACKAGE ====="
+
+                    mvn clean package -DskipTests
+
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Maven build failed."
+                    }
+
+                    Write-Host "Maven build completed successfully."
+                '''
+            }
+        }
+
         stage('Verify Docker') {
             steps {
                 powershell '''

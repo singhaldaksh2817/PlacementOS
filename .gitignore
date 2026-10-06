@@ -31,3 +31,8 @@ server/database.sqlite
 *.njsproj
 *.sln
 *.sw?
+
+# Maven build artifacts & local node binaries
+target/
+node/
+
